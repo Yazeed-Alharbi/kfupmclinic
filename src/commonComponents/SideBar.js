@@ -1,8 +1,10 @@
 import React from "react";
-import { Button, User } from "@nextui-org/react";
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, User } from "@nextui-org/react";
 import kfupmlogo from "../assets/kfupmlogo.png"
 import { FaCalendarPlus } from "react-icons/fa";
 import { FaCalendarCheck } from "react-icons/fa6";
+import profileImage from "../assets/default-avatar.jpg"
+import { IoMdArrowDropdown } from "react-icons/io";
 
 const SideBar = () => {
 
@@ -40,10 +42,33 @@ const SideBar = () => {
                 </div>
              
             </div>
-            <div className="p-4">
-
-            
-
+            <div className="p-4 py-8 flex space-x-2 items-center">
+                <img src={profileImage} className="w-11 h-11"></img>
+                <div className="flex flex-col items-start">
+                    <p className="font-semibold">
+                        Abduallah Alalawi
+                    </p>
+                    <p className="text-textlightgray">
+                        Patient
+                    </p>
+                    
+                </div>
+                <Dropdown>
+      <DropdownTrigger>
+        <Button 
+          isIconOnly={true}
+          className="bg-transparent rounded-3xl"
+          
+        >
+          <IoMdArrowDropdown className="text-2xl text-kfupmgreen" />
+        </Button>
+      </DropdownTrigger>
+      <DropdownMenu aria-label="Static Actions">
+        <DropdownItem key="1">Option 1</DropdownItem>
+        <DropdownItem key="2">Option 2</DropdownItem>
+        <DropdownItem key="3">Option 3</DropdownItem>
+      </DropdownMenu>
+    </Dropdown>
             </div>
             </div>
         </aside>
