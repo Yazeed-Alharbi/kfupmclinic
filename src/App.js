@@ -1,28 +1,25 @@
-
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import Sidebar from './commonComponents/SideBar';
+import ScheduleAppointmentPage from './pages/ScheduleAppointmentPage';
+import AppointmentsPage from './pages/AppointmentsPage';
+import DoctorSchedulePage from './pages/DoctorSchedulePage';
+import GenerateAppointmentPage from './pages/GenerateAppointmentPage';
+import AdminDoctorSchedulePage from './pages/AdminDoctorSchedulePage';
+import AdminScheduleAppointmentPage from './pages/AdminScheduleAppointmentPage';
 
 function App() {
   return (
-    // <Router>
-    //         <Routes>
-    //             <Route path="/" element={<Navigate to="/scheduleappointment" replace />} />
-    //             <Route path="/admin" element={<HomePage />} />
-    //             <Route path="/signup" element={<SignUpPage />} />
-    //             <Route path="/signin" element={<SignInPage />} />
-    //             <Route path="/onboarding" element={<OnBoarding />} />
-    //             <Route path="/settings" element={<SettingsPage />} />
-    //             <Route path="/teammanagement" element={<TeamManagementPage />} />
-    //             <Route path="/corporatedashboard" element={<CorporateDashboardPage />} />
-    //             <Route path="/groupmetrics" element={<GroupMetricsPage />} />
-    //             <Route path="/statistics" element={<StatisticsPage />} />
-    //         </Routes>
-    //     </Router>
-    <div className='h-screen flex overflow-hidden bg-backgroundcolor'>
-      {/* Sidebar */}
-      <Sidebar />
-      
-      
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="/schedule-appointment" replace />} />
+        <Route path="/schedule-appointment" element={<ScheduleAppointmentPage />} />
+        <Route path="/appointments" element={<AppointmentsPage />} />
+        <Route path="/doctor-schedule" element={<DoctorSchedulePage />} />
+        <Route path="/admin-schedule-appointment" element={<AdminScheduleAppointmentPage />} />
+        <Route path="/generate-appointment" element={<GenerateAppointmentPage />} />
+        <Route path="/admin-doctor-schedule" element={<AdminDoctorSchedulePage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

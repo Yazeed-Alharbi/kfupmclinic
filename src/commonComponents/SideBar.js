@@ -1,15 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@nextui-org/react";
+import { useNavigate, useLocation } from "react-router-dom";
 import kfupmlogo from "../assets/kfupmlogo.png";
-import { FaCalendarPlus, FaCalendarCheck } from "react-icons/fa";
 import profileImage from "../assets/default-avatar.jpg";
 import { IoMdArrowDropdown } from "react-icons/io";
 
-const SideBar = () => {
+const SideBar = ({ buttons, userName, userType }) => {
   const [selectedButton, setSelectedButton] = useState("");
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleButtonClick = (buttonName) => {
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const matchedButton = buttons.find((button) => button.path === currentPath);
+    if (matchedButton) {
+      setSelectedButton(matchedButton.label);
+    }
+  }, [location, buttons]);
+
+  const handleButtonClick = (buttonName, path) => {
     setSelectedButton(buttonName);
+    navigate(path);
   };
 
   return (
@@ -26,30 +37,21 @@ const SideBar = () => {
           <div className="space-y-8 flex">
             <div className="space-y-2 p-2 pt-4">
               <div className="pl-2 pt-2 pr-2 space-y-8 min-w-full">
-                <Button
-                  ripple={true}
-                  startContent={<FaCalendarPlus className="mr-2" />}
-                  className={`text-start flex justify-start px-4 text-base min-w-full max-w-full py-7 focus:outline-none rounded-lg ${
-                    selectedButton === "Schedule Appointment"
-                      ? "bg-kfupmgreen text-white font-semibold"
-                      : "bg-transparent text-textlightgray font-normal"
-                  }`}
-                  onClick={() => handleButtonClick("Schedule Appointment")}
-                >
-                  Schedule Appointment
-                </Button>
-                <Button
-                  ripple={true}
-                  startContent={<FaCalendarCheck className="mr-2" />}
-                  className={`text-start flex justify-start px-4 text-base min-w-full max-w-full py-7 focus:outline-none rounded-lg ${
-                    selectedButton === "Appointments"
-                      ? "bg-kfupmgreen text-white font-semibold"
-                      : "bg-transparent text-textlightgray font-normal"
-                  }`}
-                  onClick={() => handleButtonClick("Appointments")}
-                >
-                  Appointments
-                </Button>
+                {buttons.map((button) => (
+                  <Button
+                    key={button.label}
+                    ripple={true}
+                    startContent={<button.icon className="mr-2" />}
+                    className={`text-start flex justify-start px-4 text-base min-w-full max-w-full py-7 focus:outline-none rounded-lg ${
+                      selectedButton === button.label
+                        ? "bg-kfupmgreen text-white font-semibold"
+                        : "bg-transparent text-textlightgray font-normal"
+                    }`}
+                    onClick={() => handleButtonClick(button.label, button.path)}
+                  >
+                    {button.label}
+                  </Button>
+                ))}
               </div>
             </div>
           </div>
@@ -57,8 +59,8 @@ const SideBar = () => {
           <div className="p-4 py-8 flex space-x-2 items-center">
             <img src={profileImage} className="w-11 h-11" alt="Profile" />
             <div className="flex flex-col items-start">
-              <p className="font-semibold">Abdullah Alalawi</p>
-              <p className="text-textlightgray">Patient</p>
+              <p className="font-semibold">{userName}</p>
+              <p className="text-textlightgray">{userType}</p>
             </div>
             <Dropdown>
               <DropdownTrigger>
