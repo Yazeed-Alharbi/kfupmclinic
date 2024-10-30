@@ -3,7 +3,7 @@ const {nextui} = require('@nextui-org/theme');
 module.exports = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
-    "./node_modules/@nextui-org/theme/dist/components/(dropdown|menu|divider|popover|button|ripple|spinner).js"
+    "./node_modules/@nextui-org/theme/dist/components/(dropdown|menu|divider|popover|button|ripple|spinner|select|modal| divider|table).js"
   ],
   theme: {
     extend: {
