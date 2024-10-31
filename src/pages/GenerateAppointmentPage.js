@@ -2,7 +2,14 @@ import React, { useState } from "react";
 import MainLayout from "../commonComponents/MainLayout";
 import { FaCalendarPlus, FaCalendarCheck } from "react-icons/fa";
 import { RiCalendarScheduleFill } from "react-icons/ri";
-import { Select, SelectItem, CheckboxGroup, Checkbox, Button } from "@nextui-org/react"
+import AvailabilityTable from "./AppointmentsPage";
+import {
+  Select,
+  SelectItem,
+  CheckboxGroup,
+  Checkbox,
+  Button,
+} from "@nextui-org/react";
 export const clinics = [
   { key: "Internal Medicine Clinic", label: "Internal Medicine Clinic" },
   { key: "Ophthalmology Clinic", label: "Ophthalmology Clinic" },
@@ -12,7 +19,7 @@ export const clinics = [
 
 export const doctors = {
   "Internal Medicine Clinic": [
-    { key: "Dr. Scut Tom", label: "Dr. Scut Tom" },
+    { key: "Dr. Scut Tom", label: "Dr. Scut Tom", },
     { key: "Dr. Amina Ahmed", label: "Dr. Amina Ahmed" },
   ],
   "Ophthalmology Clinic": [
@@ -29,27 +36,51 @@ export const doctors = {
 
 const GenerateAppointmentPage = () => {
   const sidebarButtons = [
-    { label: "Generate Appointment", icon: FaCalendarPlus, path: "/generate-appointment" },
-    { label: "Schedule Appointment", icon: FaCalendarCheck, path: "/admin-schedule-appointment" },
-    { label: "Doctor Schedule", icon: RiCalendarScheduleFill, path: "/admin-doctor-schedule" },
+    {
+      label: "Generate Appointment",
+      icon: FaCalendarPlus,
+      path: "/generate-appointment",
+    },
+    {
+      label: "Schedule Appointment",
+      icon: FaCalendarCheck,
+      path: "/admin-schedule-appointment",
+    },
+    {
+      label: "Doctor Schedule",
+      icon: RiCalendarScheduleFill,
+      path: "/admin-doctor-schedule",
+    },
   ];
 
   const handleClinicChange = (e) => {
-    setClinicValue(e)
-    setDocotrValue("")
-  }
+    setClinicValue(e);
+    setDocotrValue("");
+  };
   const handleDoctorChange = (e) => {
-    setDocotrValue(e)
-  }
-  let showSchedule = false;
-  const [clinicValue, setClinicValue] = useState("")
-  const [doctorValue, setDocotrValue] = useState("")
-
+    setDocotrValue(e);
+  };
+  const handlesCheckBox = (e) => {
+    setSelected(e);
+  };
+  const handleAppointmentChange = () => {
+    setShowSchedule(!showSchedule);
+    setClinicValue("");
+    setDocotrValue("");
+    setSelected([]);
+  };
+  const [showSchedule, setShowSchedule] = useState(false);
+  const [clinicValue, setClinicValue] = useState("");
+  const [doctorValue, setDocotrValue] = useState("");
+  const [selected, setSelected] = useState([]);
 
   return (
-    <MainLayout title="Generate Appointment" sidebarButtons={sidebarButtons} userName="Rayan Alamrani" userType="Admin">
-
-
+    <MainLayout
+      title="Generate Appointment"
+      sidebarButtons={sidebarButtons}
+      userName="Rayan Alamrani"
+      userType="Admin"
+    >
       {!showSchedule ? (
         <>
           <div className=" items-start flex w-full flex-wrap md:flex-nowrap gap-4 ml-10 mt-10 mb-5">
@@ -59,12 +90,11 @@ const GenerateAppointmentPage = () => {
               onChange={(e) => handleClinicChange(e.target.value)}
               placeholder="Choose a clinic"
             >
-              {(clinics.map((clinic) => (
+              {clinics.map((clinic) => (
                 <SelectItem key={clinic.key} value={clinic.key}>
                   {clinic.label}
                 </SelectItem>
-              )))
-              }
+              ))}
             </Select>
 
             <Select
@@ -72,7 +102,7 @@ const GenerateAppointmentPage = () => {
               label="Doctor"
               placeholder="Choose a clinic"
               className="max-w-xs"
-              onChange={(e) => handleDoctorChange(e)}
+              onChange={(e) => handleDoctorChange(e.target.value)}
             >
               {clinicValue &&
                 doctors[clinicValue].map((doctor) => (
@@ -83,8 +113,10 @@ const GenerateAppointmentPage = () => {
             </Select>
             <CheckboxGroup
               label="Select cities"
-              defaultValue={["Sunday", "Wednesday"]}
+              value={selected}
+              onValueChange={(e) => handlesCheckBox(e)}
               className="flex-initial w-60"
+              isDisabled={!doctorValue}
             >
               <div className="h-full x flex flex-wrap max-h-70 justify-start gap-4 content-start ">
                 <Checkbox value="Sunday">Sunday</Checkbox>
@@ -98,17 +130,50 @@ const GenerateAppointmentPage = () => {
             </CheckboxGroup>
           </div>
           <div className="buttonDiv ">
-            <Button className="ml-10 bg-kfupmgreen text-white" >
-              View Schedule
+            <Button
+              className="ml-10 bg-kfupmgreen text-white"
+              isDisabled={selected.length === 0}
+            >
+              Generate Appointment Slot
             </Button>
-            <Button className="ml-10 bg-kfupmgreen text-white" >
-              View Schedule
+            <Button
+              className="ml-10 bg-kfupmgreen text-white"
+              onClick={handleAppointmentChange}
+            >
+              View Appointment Slot
             </Button>
           </div>
         </>
-      ) : (<div><p>1</p></div>)
-      }
+      ) : (
+        <>
+          {/* {clinicValue?<AvailabilityTable ></AvailabilityTable>:<div></div>} */} {/*TODO*/}
+          <div className=" items-start flex w-full flex-wrap md:flex-nowrap gap-4 ml-10 mt-10 mb-5">
+          <Select
+              label="Select a clinic"
+              className="max-w-xs"
+              onChange={(e) => handleClinicChange(e.target.value)}
+              placeholder="Choose a clinic"
+            >
+              {clinics.map((clinic) => (
+                <SelectItem key={clinic.key} value={clinic.key}>
+                  {clinic.label}
+                </SelectItem>
+              ))}
+            </Select>
 
+          </div>
+          <div>
+           
+        
+            <Button
+              className="ml-10 bg-kfupmgreen text-white"
+              onClick={handleAppointmentChange}
+            >
+              Go Back
+            </Button>
+          </div>
+        </>
+      )}
     </MainLayout>
   );
 };
