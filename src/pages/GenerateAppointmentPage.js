@@ -2,14 +2,23 @@ import React, { useState } from "react";
 import MainLayout from "../commonComponents/MainLayout";
 import { FaCalendarPlus, FaCalendarCheck } from "react-icons/fa";
 import { RiCalendarScheduleFill } from "react-icons/ri";
-import AvailabilityTable from "./AppointmentsPage";
+
 import {
   Select,
   SelectItem,
   CheckboxGroup,
   Checkbox,
   Button,
+  Table,
+  TableHeader,
+  TableBody,
+  TableColumn,
+  TableRow,
+  TableCell,
+  getKeyValue
 } from "@nextui-org/react";
+import { AiOutlineDelete } from "react-icons/ai";
+
 export const clinics = [
   { key: "Internal Medicine Clinic", label: "Internal Medicine Clinic" },
   { key: "Ophthalmology Clinic", label: "Ophthalmology Clinic" },
@@ -19,22 +28,30 @@ export const clinics = [
 
 export const doctors = {
   "Internal Medicine Clinic": [
-    { key: "Dr. Scut Tom", label: "Dr. Scut Tom", },
-    { key: "Dr. Amina Ahmed", label: "Dr. Amina Ahmed" },
+    { key: "Dr. Scut Tom", label: "Dr. Scut Tom", index: 1,status: "Vacation" },
+    { key: "Dr. Amina Ahmed", label: "Dr. Amina Ahmed", index: 2,status: "Vacation" },
   ],
   "Ophthalmology Clinic": [
-    { key: "Dr. Banabas Paul", label: "Dr. Banabas Paul" },
-    { key: "Dr. Ayo Jones", label: "Dr. Ayo Jones" },
-    { key: "Dr. Michael Stwart", label: "Dr. Michael Stwart" },
+    { key: "Dr. Banabas Paul", label: "Dr. Banabas Paul", index: 1,status: "Vacation" },
+    { key: "Dr. Ayo Jones", label: "Dr. Ayo Jones", index: 2,status: "Vacation" },
+    { key: "Dr. Michael Stwart", label: "Dr. Michael Stwart", index: 3,status: "Vacation" },
   ],
   "Dermatology Clinic": [
-    { key: "Dr. Kemi Olowojeje", label: "Dr. Kemi Olowojeje" },
-    { key: "Dr. Ebuka Kelechi", label: "Dr. Ebuka Kelechi" },
+    { key: "Dr. Kemi Olowojeje", label: "Dr. Kemi Olowojeje", index: 1,status: "Vacation" },
+    { key: "Dr. Ebuka Kelechi", label: "Dr. Ebuka Kelechi", index: 2,status: "Vacation" },
   ],
-  "Dental clinic": [{ key: "Dr. Ibrahim Yekeni", label: "Dental clinic" }],
+  "Dental clinic": [
+    { key: "Dr. Ibrahim Yekeni", label: "Dental clinic", index: 1,status: "Vacation" },
+  ],
 };
 
 const GenerateAppointmentPage = () => {
+  const [showSchedule, setShowSchedule] = useState(false);
+  const [clinicValue, setClinicValue] = useState("");
+  const [doctorValue, setDocotrValue] = useState("");
+  const [selected, setSelected] = useState([]);
+  const [tableSelect, setTableSelect] = useState("Dermatology Clinic");
+  const [rows, setRows] = useState(doctors[tableSelect]);
   const sidebarButtons = [
     {
       label: "Generate Appointment",
@@ -69,11 +86,23 @@ const GenerateAppointmentPage = () => {
     setDocotrValue("");
     setSelected([]);
   };
-  const [showSchedule, setShowSchedule] = useState(false);
-  const [clinicValue, setClinicValue] = useState("");
-  const [doctorValue, setDocotrValue] = useState("");
-  const [selected, setSelected] = useState([]);
+  const handleSelection = (key) => {
+    setTableSelect(key);
+    setRows(doctors[key]);
+  };
 
+  // const rows = [
+  //   { key: "1", name: "Tony Reichert", days: "CEO", status: "Active" },
+  //   { key: "2", name: "Zoey Lang", days: "Technical Lead", status: "Paused" },
+  //   { key: "3", name: "Jane Fisher", days: "Senior Developer", status: "Active" },
+  //   { key: "4", name: "William Howard", days: "Community Manager", status: "Vacation" },
+  // ];
+  
+  const columns = [
+    { key: "name", label: "NAME" },
+    { key: "days", label: "DAYS" },
+    { key: "status", label: "STATUS" },
+  ];
   return (
     <MainLayout
       title="Generate Appointment"
@@ -146,12 +175,11 @@ const GenerateAppointmentPage = () => {
         </>
       ) : (
         <>
-          {/* {clinicValue?<AvailabilityTable ></AvailabilityTable>:<div></div>} */} {/*TODO*/}
           <div className=" items-start flex w-full flex-wrap md:flex-nowrap gap-4 ml-10 mt-10 mb-5">
-          <Select
+            <Select
               label="Select a clinic"
               className="max-w-xs"
-              onChange={(e) => handleClinicChange(e.target.value)}
+              onChange={(e) => handleSelection(e.target.value)}
               placeholder="Choose a clinic"
             >
               {clinics.map((clinic) => (
@@ -160,11 +188,27 @@ const GenerateAppointmentPage = () => {
                 </SelectItem>
               ))}
             </Select>
-
           </div>
-          <div>
-           
+         
+          <>
+          
+          <div className="flex justify-center my-4  max-w-4xl">
+            <Table aria-label="Example table with dynamic content">
+              <TableHeader columns={columns}>
+                {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
+              </TableHeader>
+              <TableBody items={rows}>
+                {(item) => (
+                  <TableRow key={item.key}>
+                    {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          </>
         
+          <div>
             <Button
               className="ml-10 bg-kfupmgreen text-white"
               onClick={handleAppointmentChange}
