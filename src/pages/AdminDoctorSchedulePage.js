@@ -20,6 +20,7 @@ import {
   TableRow,
   TableCell,
   getKeyValue,
+  Avatar
 } from "@nextui-org/react";
 
 export const clinics = [
@@ -153,6 +154,9 @@ const AdminDoctorSchedulePage = () => {
       ) : (
         <div className="ml-10 mt-10">
           <div className="max-w-md">
+            <div className="  flex gap-4 items-center">
+              <Avatar className="mb-4" showFallback src='https://images.unsplash.com/broken' />
+            </div>
             <div className="space-y-1">
               <h3 className="text-medium font-medium">Schedule for {selectedDoctor}</h3>
               <p className="text-small text-default-400">At {selectedClinic}</p>
