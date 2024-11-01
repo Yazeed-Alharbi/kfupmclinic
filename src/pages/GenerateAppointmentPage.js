@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import MainLayout from "../commonComponents/MainLayout";
 import { FaCalendarPlus, FaCalendarCheck } from "react-icons/fa";
 import { RiCalendarScheduleFill } from "react-icons/ri";
-
+import {DeleteIcon} from "../assets/deleteIcon";
 import {
   Select,
   SelectItem,
@@ -28,20 +28,20 @@ export const clinics = [
 
 export const doctors = {
   "Internal Medicine Clinic": [
-    { key: "Dr. Scut Tom", label: "Dr. Scut Tom", index: 1,status: "Vacation" },
-    { key: "Dr. Amina Ahmed", label: "Dr. Amina Ahmed", index: 2,status: "Vacation" },
+    { key: "Dr. Scut Tom", label: "Dr. Scut Tom", index: 1,status: "Vacation",name: "Dr. Banabas Paul" },
+    { key: "Dr. Amina Ahmed", label: "Dr. Amina Ahmed", index: 2,status: "Vacation", name: "Dr. Banabas Paul" },
   ],
   "Ophthalmology Clinic": [
-    { key: "Dr. Banabas Paul", label: "Dr. Banabas Paul", index: 1,status: "Vacation" },
-    { key: "Dr. Ayo Jones", label: "Dr. Ayo Jones", index: 2,status: "Vacation" },
-    { key: "Dr. Michael Stwart", label: "Dr. Michael Stwart", index: 3,status: "Vacation" },
+    { key: "Dr. Banabas Paul", label: "Dr. Banabas Paul", index: 1,status: "Vacation", name: "Dr. Banabas Paul" },
+    { key: "Dr. Ayo Jones", label: "Dr. Ayo Jones", index: 2,status: "Vacation",name: "Dr. Banabas Paul"  },
+    { key: "Dr. Michael Stwart", label: "Dr. Michael Stwart", index: 3,status: "Vacation", name: "Dr. Banabas Paul" },
   ],
   "Dermatology Clinic": [
-    { key: "Dr. Kemi Olowojeje", label: "Dr. Kemi Olowojeje", index: 1,status: "Vacation" },
-    { key: "Dr. Ebuka Kelechi", label: "Dr. Ebuka Kelechi", index: 2,status: "Vacation" },
+    { key: "Dr. Kemi Olowojeje", label: "Dr. Kemi Olowojeje", index: 1,status: "Vacation",name: "Dr. Banabas Paul"  },
+    { key: "Dr. Ebuka Kelechi", label: "Dr. Ebuka Kelechi", index: 2,status: "Vacation",name: "Dr. Banabas Paul"  },
   ],
   "Dental clinic": [
-    { key: "Dr. Ibrahim Yekeni", label: "Dental clinic", index: 1,status: "Vacation" },
+    { key: "Dr. Ibrahim Yekeni", label: "Dental clinic", index: 1,status: "Vacation", name: "Dr. Banabas Paul"  },
   ],
 };
 
@@ -50,7 +50,7 @@ const GenerateAppointmentPage = () => {
   const [clinicValue, setClinicValue] = useState("");
   const [doctorValue, setDocotrValue] = useState("");
   const [selected, setSelected] = useState([]);
-  const [tableSelect, setTableSelect] = useState("Dermatology Clinic");
+  const [tableSelect, setTableSelect] = useState("");
   const [rows, setRows] = useState(doctors[tableSelect]);
   const sidebarButtons = [
     {
@@ -69,7 +69,9 @@ const GenerateAppointmentPage = () => {
       path: "/admin-doctor-schedule",
     },
   ];
+  const TablekeyValue= () =>{
 
+  }
   const handleClinicChange = (e) => {
     setClinicValue(e);
     setDocotrValue("");
@@ -190,23 +192,30 @@ const GenerateAppointmentPage = () => {
             </Select>
           </div>
          
-          <>
+          {(tableSelect)?(<>
           
-          <div className="flex justify-center my-4  max-w-4xl">
-            <Table aria-label="Example table with dynamic content">
+          <div className="items-start flex flex-wrap md:flex-nowrap gap-4 ml-10 mt-10 mb-10 my-4  max-w-4xl p-0">
+            <Table aria-label="Example table with dynamic content" className="">
               <TableHeader columns={columns}>
                 {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
               </TableHeader>
               <TableBody items={rows}>
                 {(item) => (
                   <TableRow key={item.key}>
-                    {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
+                    {/* {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>} */}
+                    <TableCell>{item.name}</TableCell>
+                    <TableCell>{item.key}</TableCell>
+                    <TableCell className="flex justify-center">{ <span className="text-lg text-danger cursor-pointer active:opacity-50">
+                <DeleteIcon />
+              </span>}</TableCell>
                   </TableRow>
                 )}
               </TableBody>
             </Table>
           </div>
-          </>
+          </>):<div>
+            
+            </div>}
         
           <div>
             <Button
