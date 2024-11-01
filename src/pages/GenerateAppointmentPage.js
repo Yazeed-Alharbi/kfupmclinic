@@ -29,7 +29,7 @@ export const clinics = [
 export const doctors = {
   "Internal Medicine Clinic": [
     { key: "Dr. Scut Tom", label: "Dr. Scut Tom", index: 1,status: "Vacation",name: "Dr. Banabas Paul" },
-    { key: "Dr. Amina Ahmed", label: "Dr. Amina Ahmed", index: 2,status: "Vacation", name: "Dr. Banabas Paul" },
+    { key: "Dr. Amina Ahmed", label: "Dr. Amina Ahmed", index: 2,status: "Vacation", },
   ],
   "Ophthalmology Clinic": [
     { key: "Dr. Banabas Paul", label: "Dr. Banabas Paul", index: 1,status: "Vacation", name: "Dr. Banabas Paul" },
@@ -51,7 +51,7 @@ const GenerateAppointmentPage = () => {
   const [doctorValue, setDocotrValue] = useState("");
   const [selected, setSelected] = useState([]);
   const [tableSelect, setTableSelect] = useState("");
-  const [rows, setRows] = useState(doctors[tableSelect]);
+  const [rows, setRows] = useState([]);
   const sidebarButtons = [
     {
       label: "Generate Appointment",
@@ -89,9 +89,22 @@ const GenerateAppointmentPage = () => {
     setSelected([]);
   };
   const handleSelection = (key) => {
-    setTableSelect(key);
-    setRows(doctors[key]);
+    if(key){
+      setTableSelect(key);
+      console.log(key)
+      let selectedRow=  doctors[key].map((item) => {if(item.name) return item}) // todo make this days
+      setRows(selectedRow)
+    }
+    else{
+      setTableSelect(key);
+      setRows([])
+    }
+    
   };
+  const handleDelete= (key,clinic) => {
+     delete doctors[clinic][key-1].name; // TODO change handler later
+     handleSelection(clinic)
+  }
 
   // const rows = [
   //   { key: "1", name: "Tony Reichert", days: "CEO", status: "Active" },
@@ -201,12 +214,13 @@ const GenerateAppointmentPage = () => {
               </TableHeader>
               <TableBody items={rows}>
                 {(item) => (
+                  
                   <TableRow key={item.key}>
                     {/* {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>} */}
                     <TableCell>{item.name}</TableCell>
                     <TableCell>{item.key}</TableCell>
                     <TableCell className="flex justify-center">{ <span className="text-lg text-danger cursor-pointer active:opacity-50">
-                <DeleteIcon />
+                <DeleteIcon onClick= {()=> handleDelete(item.index,tableSelect)} />
               </span>}</TableCell>
                   </TableRow>
                 )}
