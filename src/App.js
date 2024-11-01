@@ -6,6 +6,7 @@ import DoctorSchedulePage from './pages/DoctorSchedulePage';
 import GenerateAppointmentPage from './pages/GenerateAppointmentPage';
 import AdminDoctorSchedulePage from './pages/AdminDoctorSchedulePage';
 import AdminScheduleAppointmentPage from './pages/AdminScheduleAppointmentPage';
+import LoginPage from './pages/loginPage';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/admin-schedule-appointment" element={<AdminScheduleAppointmentPage />} />
         <Route path="/generate-appointment" element={<GenerateAppointmentPage />} />
         <Route path="/admin-doctor-schedule" element={<AdminDoctorSchedulePage />} />
+        <Route path="/login" element={<LoginPage />} />
       </Routes>
     </BrowserRouter>
   );
