@@ -28,6 +28,7 @@ module.exports = {
         backgroundcolor: '#F8F8F8FF',
         textgray: '#676767FF',
         textlightgray: '#A9A9A9FF',
+        BackgroundWhite:'#FFFFFF'
       },
     },
   },
