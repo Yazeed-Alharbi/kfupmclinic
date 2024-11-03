@@ -28,17 +28,17 @@ export const clinics = [
 
 export const doctors = {
   "Internal Medicine Clinic": [
-    { key: "Dr. Scut Tom", label: "Dr. Scut Tom", index: 1,status: "Vacation",name: "Dr. Banabas Paul" },
+    { key: "Dr. Scut Tom", label: "Dr. Scut Tom", index: 1,status: "Vacation",name: "Dr. Banabas Paul",days:["Sunday","Tuesday"]},
     { key: "Dr. Amina Ahmed", label: "Dr. Amina Ahmed", index: 2,status: "Vacation", },
   ],
   "Ophthalmology Clinic": [
-    { key: "Dr. Banabas Paul", label: "Dr. Banabas Paul", index: 1,status: "Vacation", name: "Dr. Banabas Paul" },
-    { key: "Dr. Ayo Jones", label: "Dr. Ayo Jones", index: 2,status: "Vacation",name: "Dr. Banabas Paul"  },
-    { key: "Dr. Michael Stwart", label: "Dr. Michael Stwart", index: 3,status: "Vacation", name: "Dr. Banabas Paul" },
+    { key: "Dr. Banabas Paul", label: "Dr. Banabas Paul", index: 1,status: "Vacation", name: "Dr. Banabas Paul",days:["Sunday","Tuesday"] },
+    { key: "Dr. Ayo Jones", label: "Dr. Ayo Jones", index: 2,status: "Vacation",name: "Dr. Banabas Paul" ,days:["Sunday","Tuesday"] },
+    { key: "Dr. Michael Stwart", label: "Dr. Michael Stwart", index: 3,status: "Vacation", name: "Dr. Banabas Paul",days:["Sunday","Tuesday"] },
   ],
   "Dermatology Clinic": [
-    { key: "Dr. Kemi Olowojeje", label: "Dr. Kemi Olowojeje", index: 1,status: "Vacation",name: "Dr. Banabas Paul"  },
-    { key: "Dr. Ebuka Kelechi", label: "Dr. Ebuka Kelechi", index: 2,status: "Vacation",name: "Dr. Banabas Paul"  },
+    { key: "Dr. Kemi Olowojeje", label: "Dr. Kemi Olowojeje", index: 1,status: "Vacation",name: "Dr. Banabas Paul",days:["Sunday","Tuesday"]  },
+    { key: "Dr. Ebuka Kelechi", label: "Dr. Ebuka Kelechi", index: 2,status: "Vacation",name: "Dr. Banabas Paul" ,days:["Sunday","Tuesday"] },
   ],
   "Dental clinic": [
     { key: "Dr. Ibrahim Yekeni", label: "Dental clinic", index: 1,status: "Vacation", name: "Dr. Banabas Paul"  },
@@ -92,7 +92,7 @@ const GenerateAppointmentPage = () => {
     if(key){
       setTableSelect(key);
       console.log(key)
-      let selectedRow=  doctors[key].map((item) => {if(item.name) return item}) // todo make this days
+      let selectedRow=  doctors[key].map((item) => {if(item.days) return item}) // todo make this days
       setRows(selectedRow)
     }
     else{
@@ -102,9 +102,22 @@ const GenerateAppointmentPage = () => {
     
   };
   const handleDelete= (key,clinic) => {
-     delete doctors[clinic][key-1].name; // TODO change handler later
+     delete doctors[clinic][key-1].days; // TODO change handler later
      handleSelection(clinic)
   }
+  const DayIcon = ( {day} ) => {
+   
+    const getDayLetter = (day) => {
+      
+      return day ? day.charAt(0).toUpperCase() : '';
+    };
+  
+    return (
+      <div className="flex items-center justify-center w-5 h-5 rounded-full bg-kfupmgreen text-white text-s font-bold">
+        {getDayLetter(day)}
+      </div>
+    );
+  };
 
   // const rows = [
   //   { key: "1", name: "Tony Reichert", days: "CEO", status: "Active" },
@@ -118,7 +131,20 @@ const GenerateAppointmentPage = () => {
     { key: "days", label: "DAYS" },
     { key: "status", label: "STATUS" },
   ];
+  const DayIconList = ( days ) => {
+    console.log(days)
+    return (
+      <div className="flex space-x-2">
+        {days.map((day, index) => (
+          <>
+          <DayIcon key={index} day={day} />
+          </>
+        ))}
+      </div>
+    );
+  };
   return (
+    
     <MainLayout
       title="Generate Appointment"
       sidebarButtons={sidebarButtons}
@@ -219,7 +245,7 @@ const GenerateAppointmentPage = () => {
                   <TableRow key={item.key}>
                     {/* {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>} */}
                     <TableCell>{item.name}</TableCell>
-                    <TableCell>{item.key}</TableCell>
+                    <TableCell>{DayIconList(item.days)}</TableCell>
                     <TableCell className="flex justify-center">{ <span className="text-lg text-danger cursor-pointer active:opacity-50">
                 <DeleteIcon onClick= {()=> handleDelete(item.index,tableSelect)} />
               </span>}</TableCell>
