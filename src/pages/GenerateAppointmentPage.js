@@ -33,7 +33,7 @@ export const doctors = {
   ],
   "Ophthalmology Clinic": [
     { key: "Dr. Banabas Paul", label: "Dr. Banabas Paul", index: 1,status: "Vacation", name: "Dr. Banabas Paul",days:["Sunday","Tuesday"] },
-    { key: "Dr. Ayo Jones", label: "Dr. Ayo Jones", index: 2,status: "Vacation",name: "Dr. Banabas Paul" ,days:["Sunday","Tuesday"] },
+    { key: "Dr. Ayo Jones", label: "Dr. Ayo Jones", index: 2,status: "Vacation",name: "Dr. Banabas Paul" ,days:["Sunday","Thursday"] },
     { key: "Dr. Michael Stwart", label: "Dr. Michael Stwart", index: 3,status: "Vacation", name: "Dr. Banabas Paul",days:["Sunday","Tuesday"] },
   ],
   "Dermatology Clinic": [
@@ -111,10 +111,19 @@ const GenerateAppointmentPage = () => {
       
       return day ? day.charAt(0).toUpperCase() : '';
     };
+    const getDayLetterDuplicate = (day) => {
+      if(day.charAt(0).toUpperCase()==='T'){
+        return day.charAt(1).toUpperCase() === 'U'? 'T':'R';
+      }
+      if(day.charAt(0).toUpperCase()==='S'){
+        return day.charAt(1).toUpperCase() === 'U'? 'U':'S';
+      }
+    };
+  
   
     return (
       <div className="flex items-center justify-center w-5 h-5 rounded-full bg-kfupmgreen text-white text-s font-bold">
-        {getDayLetter(day)}
+        {(getDayLetter(day)!=='S' &&  getDayLetter(day)!=='T')? getDayLetter(day): getDayLetterDuplicate(day)}
       </div>
     );
   };
@@ -129,7 +138,7 @@ const GenerateAppointmentPage = () => {
   const columns = [
     { key: "name", label: "NAME" },
     { key: "days", label: "DAYS" },
-    { key: "status", label: "STATUS" },
+    { key: "action", label: "ACTION" },
   ];
   const DayIconList = ( days ) => {
     console.log(days)
@@ -142,6 +151,9 @@ const GenerateAppointmentPage = () => {
         ))}
       </div>
     );
+  };
+  const handleGenerateAppointment = () => {
+    
   };
   return (
     
@@ -159,6 +171,7 @@ const GenerateAppointmentPage = () => {
               className="max-w-xs"
               onChange={(e) => handleClinicChange(e.target.value)}
               placeholder="Choose a clinic"
+      
             >
               {clinics.map((clinic) => (
                 <SelectItem key={clinic.key} value={clinic.key}>
@@ -204,8 +217,9 @@ const GenerateAppointmentPage = () => {
             <Button
               className="ml-10 bg-kfupmgreen text-white"
               isDisabled={selected.length === 0}
+              onClick={handleGenerateAppointment}
             >
-              Generate Appointment Slot
+              Generate Appointment Slot 
             </Button>
             <Button
               className="ml-10 bg-kfupmgreen text-white"
