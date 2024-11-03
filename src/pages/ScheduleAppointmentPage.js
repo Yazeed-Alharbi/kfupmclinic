@@ -140,8 +140,8 @@ const ScheduleAppointmentPage = () => {
                   startContent={<clinic.icon className="text-xl" />}
                   className={`justify-start h-auto py-2 ${
                     selectedClinic === clinic.label
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-default-100"
+                      ? "bg-kfupmgreen text-primary-foreground"
+                      : "bg-kf-100"
                   }`}
                   onClick={() => handleClinicSelection(clinic.label)}
                 >
@@ -221,12 +221,13 @@ const ScheduleAppointmentPage = () => {
                 <Button
                   size="lg"
                   color="primary"
-                  className="w-full mt-4"
+                  className="bg-kfupmgreen text-white w-full mt-4"
                   onClick={handleBookAppointment}
                   isDisabled={isBookingDisabled}
                 >
                   Book Appointment
                 </Button>
+                
                 {bookingStatus === 'success' && (
                   <p className="text-success mt-2 text-center">Appointment booked successfully!</p>
                 )}
@@ -251,7 +252,7 @@ const ScheduleAppointmentPage = () => {
               <Button color="danger" variant="light" onPress={() => setIsModalOpen(false)}>
                 Cancel
               </Button>
-              <Button color="primary" onPress={confirmBooking}>
+              <Button color="primary" className="bg-kfupmgreen text-white" onPress={confirmBooking}>
                 Confirm Booking
               </Button>
             </ModalFooter>
