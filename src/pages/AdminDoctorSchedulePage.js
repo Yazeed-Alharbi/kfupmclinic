@@ -48,15 +48,16 @@ export const doctors = {
 };
 
 const rows = [
-  { key: "1", name: "Tony Reichert", role: "CEO", status: "Active" },
-  { key: "2", name: "Zoey Lang", role: "Technical Lead", status: "Paused" },
-  { key: "3", name: "Jane Fisher", role: "Senior Developer", status: "Active" },
-  { key: "4", name: "William Howard", role: "Community Manager", status: "Vacation" },
+  { key: "1", name: "Tony Reichert",id: "202065825", time:"12:00 PM",status: "Peding" },
+  { key: "2", name: "Zoey Lang", id: "202189573",time:"10:00 AM", status: "Peding" },
+  { key: "3", name: "Jane Fisher", id: "201930758", time:"8:00 AM",status: "Finished" },
+  { key: "4", name: "William Howard", id: "202074842", time:"9:30 AM",status: "Peding" },
 ];
 
 const columns = [
   { key: "name", label: "NAME" },
-  { key: "role", label: "ROLE" },
+  { key: "id", label: "ID" },
+  { key: "time", label: "TIME" },
   { key: "status", label: "STATUS" },
 ];
 

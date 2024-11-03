@@ -156,22 +156,23 @@ const GenerateAppointmentPage = () => {
                 ))}
             </Select>
             <CheckboxGroup
-              label="Select cities"
-              value={selected}
-              onValueChange={(e) => handlesCheckBox(e)}
-              className="flex-initial w-60"
-              isDisabled={!doctorValue}
-            >
-              <div className="h-full x flex flex-wrap max-h-70 justify-start gap-4 content-start ">
-                <Checkbox value="Sunday">Sunday</Checkbox>
-                <Checkbox value="Monday">Monday</Checkbox>
-                <Checkbox value="Tuesday">Tuesday</Checkbox>
-                <Checkbox value="Wednesday">Wednesday</Checkbox>
-                <Checkbox value="Thursday">Thursday</Checkbox>
-                <Checkbox value="Friday">Friday</Checkbox>
-                <Checkbox value="Saturday">Saturday</Checkbox>
+                label="Select days"
+                value={selected}
+                onValueChange={(e) => handlesCheckBox(e)}
+                className="flex-initial w-60 "
+                isDisabled={!doctorValue}
+                >
+              <div className="grid grid-cols-2 gap-y-2 gap-x-4">
+                  <Checkbox value="Sunday">Sunday</Checkbox>
+                  <Checkbox value="Monday">Monday</Checkbox>
+                  <Checkbox value="Tuesday">Tuesday</Checkbox>
+                  <Checkbox value="Wednesday">Wednesday</Checkbox>
+                  <Checkbox value="Thursday">Thursday</Checkbox>
+                  <Checkbox value="Friday">Friday</Checkbox>
+                  <Checkbox value="Saturday">Saturday</Checkbox>
               </div>
             </CheckboxGroup>
+
           </div>
           <div className="buttonDiv ">
             <Button
