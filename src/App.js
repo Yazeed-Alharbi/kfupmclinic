@@ -7,6 +7,9 @@ import GenerateAppointmentPage from './pages/GenerateAppointmentPage';
 import AdminDoctorSchedulePage from './pages/AdminDoctorSchedulePage';
 import AdminScheduleAppointmentPage from './pages/AdminScheduleAppointmentPage';
 import LoginPage from './pages/loginPage';
+import QueueManagementPage from './pages/QueueManagementPage';
+import QueuePage from './pages/QueuePage';
+import DoctorQueue from './pages/DoctorQueue';
 
 function App() {
   return (
@@ -20,6 +23,9 @@ function App() {
         <Route path="/generate-appointment" element={<GenerateAppointmentPage />} />
         <Route path="/admin-doctor-schedule" element={<AdminDoctorSchedulePage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/queue-management" element={<QueueManagementPage />} />
+        <Route path="/queue" element={<QueuePage />} />
+        <Route path="/DoctorQueue" element={<DoctorQueue />} />
       </Routes>
     </BrowserRouter>
   );
