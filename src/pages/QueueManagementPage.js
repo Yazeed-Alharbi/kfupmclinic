@@ -44,7 +44,7 @@ const QueueManagementPage = () => {
     const currentPatient = initialQueue[currentQueueIndex];
 
     return (
-        <MainLayout title="Queue Management" sidebarButtons={sidebarButtons} userName="Yazeed Alharbi" userType="Doctor">
+        <MainLayout title="Queue Management" sidebarButtons={sidebarButtons} userName="Yazeed Alharbi" userType="Admin">
             <div className="flex flex-col items-center justify-center h-full">
                 <div className="flex space-x-8">
                     <div className={`relative w-96 h-52 rounded-xl flex flex-col items-center p-4 ${paused ? "bg-gray-400" : "bg-kfupmgreen"} overflow-hidden`}>

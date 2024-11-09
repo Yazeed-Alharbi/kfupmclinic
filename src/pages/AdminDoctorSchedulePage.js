@@ -22,6 +22,7 @@ import {
   getKeyValue,
   Avatar
 } from "@nextui-org/react";
+import { FaPersonWalkingDashedLineArrowRight } from "react-icons/fa6";
 
 export const clinics = [
   { key: "Internal Medicine Clinic", label: "Internal Medicine Clinic" },
@@ -94,6 +95,7 @@ const AdminDoctorSchedulePage = () => {
     { label: "Generate Appointment", icon: FaCalendarPlus, path: "/generate-appointment" },
     { label: "Schedule Appointment", icon: FaCalendarCheck, path: "/admin-schedule-appointment" },
     { label: "Doctor Schedule", icon: RiCalendarScheduleFill, path: "/admin-doctor-schedule" },
+    { label: "Queue Management", icon: FaPersonWalkingDashedLineArrowRight, path: "/queue-management" },
   ];
 
   return (

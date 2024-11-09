@@ -5,7 +5,7 @@ import { Card, CardBody, Button, Calendar, Select, SelectItem, ScrollShadow, Inp
 import { today, getLocalTimeZone, now } from "@internationalized/date";
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-import { FaVialVirus, FaHandsHoldingChild, FaEye, FaSyringe, FaHandHoldingMedical } from "react-icons/fa6";
+import { FaVialVirus, FaHandsHoldingChild, FaEye, FaSyringe, FaHandHoldingMedical, FaPersonWalkingDashedLineArrowRight } from "react-icons/fa6";
 import { GiStomach, GiToothbrush } from "react-icons/gi";
 import { TbDental, TbDentalBroken, TbVaccineBottle } from "react-icons/tb";
 import { BsEar } from "react-icons/bs";
@@ -16,6 +16,7 @@ const ScheduleAppointmentPage = () => {
   const sidebarButtons = [
     { label: "Schedule Appointment", icon: FaCalendarPlus, path: "/schedule-appointment" },
     { label: "Appointments", icon: FaCalendarCheck, path: "/appointments" },
+    { label: "Queue", icon: FaPersonWalkingDashedLineArrowRight, path: "/queue" },
   ];
 
   const clinics = [

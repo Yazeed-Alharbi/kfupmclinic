@@ -3,6 +3,7 @@ import MainLayout from "../commonComponents/MainLayout";
 import { FaCalendarPlus, FaCalendarCheck } from "react-icons/fa";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Chip, Button, Tooltip } from "@nextui-org/react";
 import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
+import { FaPersonWalkingDashedLineArrowRight } from "react-icons/fa6";
 
 // Dummy data for appointments
 const appointments = [
@@ -23,6 +24,7 @@ const AppointmentsPage = () => {
   const sidebarButtons = [
     { label: "Schedule Appointment", icon: FaCalendarPlus, path: "/schedule-appointment" },
     { label: "Appointments", icon: FaCalendarCheck, path: "/appointments" },
+    { label: "Queue", icon: FaPersonWalkingDashedLineArrowRight, path: "/queue" },
   ];
 
   const renderCell = (appointment, columnKey) => {

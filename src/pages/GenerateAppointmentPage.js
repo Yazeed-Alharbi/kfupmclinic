@@ -18,6 +18,7 @@ import {
   getKeyValue
 } from "@nextui-org/react";
 import { AiOutlineDelete } from "react-icons/ai";
+import { FaPersonWalkingDashedLineArrowRight } from "react-icons/fa6";
 
 export const clinics = [
   { key: "Internal Medicine Clinic", label: "Internal Medicine Clinic" },
@@ -68,6 +69,7 @@ const GenerateAppointmentPage = () => {
       icon: RiCalendarScheduleFill,
       path: "/admin-doctor-schedule",
     },
+    { label: "Queue Management", icon: FaPersonWalkingDashedLineArrowRight, path: "/queue-management" },
   ];
   const TablekeyValue= () =>{
 
