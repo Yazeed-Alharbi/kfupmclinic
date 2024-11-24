@@ -7,10 +7,10 @@ import { FaPersonWalkingDashedLineArrowRight } from "react-icons/fa6";
 // Dummy data for appointments
 const appointments = [
   { id: 1, date: "2024-03-15", time: "7:30 AM", Patient: "Mohammed Abdo",SN:"129173940",MedRec:"HP431A5", AGE: "56", Blood:"A" , status: "Confirmed" },
-  { id: 2, date: "2024-03-15", time: "8:10 AM", Patient: "Sean Combs",SN:"113566940", MedRec:"HP433A6",AGE: "55", Blood:"A+" , status: "Pending" },
-  { id: 3, date: "2024-03-15", time: "11:15 AM", Patient: "Donald trump",SN:"929773940", MedRec:"HP567A8",AGE: "84", Blood:"AB" , status: "Pending" },
+  { id: 2, date: "2024-03-15", time: "8:10 AM", Patient: "Nodi Olz",SN:"113566940", MedRec:"HP433A6",AGE: "55", Blood:"A+" , status: "Pending" },
+  { id: 3, date: "2024-03-15", time: "11:15 AM", Patient: "Rayan Alamrani",SN:"929773940", MedRec:"HP567A8",AGE: "84", Blood:"AB" , status: "Pending" },
   { id: 4, date: "2024-03-16", time: "1:00 PM", Patient: "John Smith",SN:"444173943", MedRec:"HP890A9",AGE: "45" , Blood:"O" , status: "Pending" },
-  { id: 5, date: "2024-03-17", time: "1:30 PM", Patient: "Puff diddy",SN:"321934940", MedRec:"HP123A2",AGE: "55", Blood:"B" , status: "Cancelled" },
+  { id: 5, date: "2024-03-17", time: "1:30 PM", Patient: "Turki Alsamari",SN:"321934940", MedRec:"HP123A2",AGE: "55", Blood:"B" , status: "Cancelled" },
 ];
 
 

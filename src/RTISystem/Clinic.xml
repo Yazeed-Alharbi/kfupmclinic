@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dds xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://community.rti.com/schema/7.3.0/rti_dds_profiles.xsd" version="7.3.0">
+    <types>
+      <struct name="PatientInfo">
+        <member name="patientID" type="uint64" key="true"/>
+        <member name="name" type="string"/>
+        <member name="Email" type="string" optional="true"/>
+        <member name="ContactNumber" type="string"/>
+      </struct>
+      <struct name="Appointment">
+        <member name="Appointment" type="uint64" key="true"/>
+        <member name="patientID" type="uint64" key="true"/>
+        <member name="department" type="string"/>
+        <member name="scheduledTime" type="uint64" key="true"/>
+        <member name="Priority" type="uint8"/>
+        <member name="Finished" type="boolean"/>
+        <member name="checkedIn" type="boolean"/>
+        <member name="roomNumber" type="uint8"/>
+        <member name="doctorID" type="uint64"/>
+        <member name="doctorName" type="string"/>
+        <member name="patientName" type="string"/>
+      </struct>
+      <struct name="Admin">
+        <member name="username" type="string" key="true"/>
+        <member name="password" type="string"/>
+      </struct>
+      <struct name="Doctor">
+        <member name="doctorID" type="uint64" key="true"/>
+        <member name="doctorName" type="string"/>
+        <member name="department" type="string"/>
+      </struct>
+      <struct name="Queue">
+        <member name="queuePosition" type="uint64"/>
+        <member name="appointmentID" type="uint64" key="true"/>
+        <member name="patientID" type="uint64" key="true"/>
+        <member name="doctorID" type="uint64"/>
+        <member name="Priority" type="uint8"/>
+        <member name="doctorName" type="string"/>
+        <member name="patientName" type="string"/>
+      </struct>
+      <struct name="AdminCommand">
+        <member name="commandType" type="string"/>
+        <member name="payload" type="string"/>
+      </struct>
+    </types>
+
+    <qos_library name="ClinicQoSLibrary">
+      <qos_profile name="ReliableDurableProfile" base_name="BuiltinQosLib::Generic.StrictReliable">
+        <durability>
+          <kind>TRANSIENT_LOCAL</kind>
+        </durability>
+        <reliability>
+          <kind>RELIABLE</kind>
+        </reliability>
+        <history>
+          <kind>KEEP_LAST</kind>
+          <depth>10</depth>
+        </history>
+      </qos_profile>
+      <qos_profile name="PatientInfoProfile" base_name="BuiltinQosLib::Generic.StrictReliable">
+        <durability>
+          <kind>TRANSIENT_LOCAL</kind>
+        </durability>
+        <reliability>
+          <kind>RELIABLE</kind>
+        </reliability>
+        <history>
+          <kind>KEEP_ALL</kind>
+        </history>
+      </qos_profile>
+      <qos_profile name="BestEffortProfile" base_name="BuiltinQosLib::Generic.BestEffort">
+        <reliability>
+          <kind>BEST_EFFORT</kind>
+        </reliability>
+      </qos_profile>
+    </qos_library>
+
+    <domain_library name="Clinic">
+      <domain name="ClinicSystem" domain_id="427">
+        <register_type name="PatientInfo" type_ref="PatientInfo"/>
+        <register_type name="Appointment" type_ref="Appointment"/>
+        <register_type name="Admin" type_ref="Admin"/>
+        <register_type name="Doctor" type_ref="Doctor"/>
+        <register_type name="Queue" type_ref="Queue"/>
+        <register_type name="AdminCommand" type_ref="AdminCommand"/>
+        <topic name="PatientInfoTopic" register_type_ref="PatientInfo"/>
+        <topic name="AppointmentTopic" register_type_ref="Appointment"/>
+        <topic name="AdminTopic" register_type_ref="Admin"/>
+        <topic name="DoctorsTopic" register_type_ref="Doctor"/>
+        <topic name="QueueTopic" register_type_ref="Queue"/>
+        <topic name="AdminCommandTopic" register_type_ref="AdminCommand"/>
+      </domain>
+    </domain_library>
+
+    <domain_participant_library name="ClinicParticipants">
+      <domain_participant name="Patient Management System" domain_ref="Clinic::ClinicSystem">
+        <publisher name="PatientPublisher">
+          <data_writer name="PatientInfoWriter" topic_ref="PatientInfoTopic" qos_profile="ClinicQoSLibrary::PatientInfoProfile"/>
+        </publisher>
+        <subscriber name="AdminSubscriber">
+          <data_reader name="AdminReader" topic_ref="AdminTopic" qos_profile="ClinicQoSLibrary::ReliableDurableProfile"/>
+        </subscriber>
+      </domain_participant>
+      <domain_participant name="Appointment Management System" domain_ref="Clinic::ClinicSystem">
+        <publisher name="AppointmentPublisher">
+          <data_writer name="AppointmentTopicWriter" topic_ref="AppointmentTopic" qos_profile="ClinicQoSLibrary::ReliableDurableProfile"/>
+        </publisher>
+        <subscriber name="AppointmentManagementReader">
+          <data_reader name="DoctorTopicReader" topic_ref="DoctorsTopic" qos_profile="ClinicQoSLibrary::ReliableDurableProfile"/>
+          <data_reader name="AdminCommandReader" topic_ref="AdminCommandTopic" qos_profile="ClinicQoSLibrary::ReliableDurableProfile"/>
+          <data_reader name="QueueReader" topic_ref="QueueTopic" qos_profile="ClinicQoSLibrary::ReliableDurableProfile"/>
+          <data_reader name="PatientReader" topic_ref="PatientInfoTopic" qos_profile="ClinicQoSLibrary::PatientInfoProfile"/>
+        </subscriber>
+      </domain_participant>
+      <domain_participant name="Doctor Management System" domain_ref="Clinic::ClinicSystem">
+        <subscriber name="DoctorManagementSystemReader">
+          <data_reader name="AdminReader" topic_ref="AdminTopic" qos_profile="ClinicQoSLibrary::ReliableDurableProfile"/>
+        </subscriber>
+        <publisher name="DoctorManagementSystemWriter">
+          <data_writer name="DoctorWriter" topic_ref="DoctorsTopic" qos_profile="ClinicQoSLibrary::ReliableDurableProfile"/>
+        </publisher>
+      </domain_participant>
+      <domain_participant name="Admin Command Publisher" domain_ref="Clinic::ClinicSystem">
+        <publisher name="AdminWriter">
+          <data_writer name="AdminUserWriter" topic_ref="AdminTopic" qos_profile="ClinicQoSLibrary::ReliableDurableProfile"/>
+          <data_writer name="CommandWriter" topic_ref="AdminCommandTopic" qos_profile="ClinicQoSLibrary::ReliableDurableProfile"/>
+        </publisher>
+      </domain_participant>
+      <domain_participant name="ReceptionCheckIn" domain_ref="Clinic::ClinicSystem">
+        <subscriber name="AppointmentSubscription">
+          <data_reader name="AppointmentReader" topic_ref="AppointmentTopic" qos_profile="ClinicQoSLibrary::ReliableDurableProfile"/>
+        </subscriber>
+        <publisher name="CheckInPublisher">
+          <data_writer name="QueueWriter" topic_ref="QueueTopic" qos_profile="ClinicQoSLibrary::ReliableDurableProfile"/>
+          <data_writer name="AppointmentUpdateWriter" topic_ref="AppointmentTopic" qos_profile="ClinicQoSLibrary::ReliableDurableProfile"/>
+        </publisher>
+      </domain_participant>
+      <domain_participant name="Ticket Dispenser Check In" domain_ref="Clinic::ClinicSystem">
+        <subscriber name="AppointmentSubscription">
+          <data_reader name="AppointmentTopicReader" topic_ref="AppointmentTopic" qos_profile="ClinicQoSLibrary::ReliableDurableProfile"/>
+        </subscriber>
+        <publisher name="CheckInPublisher">
+          <data_writer name="QueueTopicWriter" topic_ref="QueueTopic" qos_profile="ClinicQoSLibrary::ReliableDurableProfile"/>
+          <data_writer name="AppointmentTopicWriter" topic_ref="AppointmentTopic" qos_profile="ClinicQoSLibrary::ReliableDurableProfile"/>
+        </publisher>
+      </domain_participant>
+      <domain_participant name="QueueDisplay" domain_ref="Clinic::ClinicSystem">
+        <subscriber name="CheckedInSubscriber">
+          <data_reader name="QueueTopicReader" topic_ref="QueueTopic" qos_profile="ClinicQoSLibrary::ReliableDurableProfile"/>
+        </subscriber>
+      </domain_participant>
+    </domain_participant_library>
+
+</dds>
