@@ -11,7 +11,7 @@
         <member name="Appointment" type="uint64" key="true"/>
         <member name="patientID" type="uint64" key="true"/>
         <member name="department" type="string" stringMaxLength="MAX_STRING"/>
-        <member name="scheduledTime" type="uint64" key="true"/>
+        <member name="scheduledTime" type="string" stringMaxLength="MAX_STRING" key="true"/>
         <member name="Priority" type="uint8"/>
         <member name="Finished" type="boolean"/>
         <member name="checkedIn" type="boolean"/>
@@ -31,7 +31,6 @@
         <member name="Availability" type="string" optional="true"/>
       </struct>
       <struct name="Queue">
-        <member name="queuePosition" type="uint64"/>
         <member name="appointmentID" type="uint64" key="true"/>
         <member name="patientID" type="uint64" key="true"/>
         <member name="doctorID" type="uint64"/>
