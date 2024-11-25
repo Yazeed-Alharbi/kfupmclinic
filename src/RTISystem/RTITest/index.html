@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Info Sender</title>
+    <script>
+        function getRandomInt(max) {
+            return Math.floor(Math.random() * max);
+        }
+
+        function generateRandomPatient() {
+            const patientID = getRandomInt(1000);
+            const names = ["John Doe", "Jane Smith", "Alice Johnson", "Bob Brown"];
+            const emails = ["john.doe@example.com", "jane.smith@example.com", "alice.johnson@example.com", "bob.brown@example.com"];
+            const contactNumbers = ["123-456-7890", "987-654-3210", "555-555-5555", "111-222-3333"];
+
+            return {
+                patientID: patientID,
+                name: names[getRandomInt(names.length)],
+                Email: emails[getRandomInt(emails.length)],
+                ContactNumber: contactNumbers[getRandomInt(contactNumbers.length)]
+            };
+        }
+
+        function sendPatientInfo() {
+            const patientData = generateRandomPatient();
+            const socket = new WebSocket('ws://localhost:8765');
+            console.log(patientData)
+            socket.onopen = function() {
+                console.log('WebSocket connection opened');
+                socket.send(JSON.stringify(patientData));
+                console.log('Sent patient data:', patientData);
+                socket.close();
+            };
+
+            socket.onerror = function(error) {
+                console.error('WebSocket error:', error);
+            };
+        }
+    </script>
+</head>
+<body>
+    <h1>Send Random Patient Info</h1>
+    <button onclick="sendPatientInfo()">Send Patient Info</button>
+</body>
+</html>
