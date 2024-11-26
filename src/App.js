@@ -10,6 +10,7 @@ import LoginPage from './pages/loginPage';
 import QueueManagementPage from './pages/QueueManagementPage';
 import QueuePage from './pages/QueuePage';
 import DoctorQueue from './pages/DoctorQueue';
+import QueuePage2 from './pages/QueuePage2';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/queue-management" element={<QueueManagementPage />} />
         <Route path="/queue" element={<QueuePage />} />
+        <Route path="/queue2" element={<QueuePage2/>} />
         <Route path="/DoctorQueue" element={<DoctorQueue />} />
       </Routes>
     </BrowserRouter>
