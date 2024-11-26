@@ -119,6 +119,7 @@
         <topic name="DoctorsTopic" register_type_ref="Doctor"/>
         <topic name="QueueTopic" register_type_ref="Queue"/>
         <topic name="AdminCommandTopic" register_type_ref="AdminCommand"/>
+        <topic name="CheckInTopic" register_type_ref="Queue"/>
       </domain>
     </domain_library>
 
@@ -193,7 +194,7 @@
           </data_reader>
         </subscriber>
         <publisher name="CheckInPublisher">
-          <data_writer name="QueueWriter" topic_ref="QueueTopic">
+          <data_writer name="QueueWriter" topic_ref="CheckInTopic">
             <datawriter_qos base_name="ClinicQoSLibrary::BestEffortProfile">
             </datawriter_qos>
           </data_writer>
@@ -211,7 +212,7 @@
           </data_reader>
         </subscriber>
         <publisher name="CheckInPublisher">
-          <data_writer name="QueueTopicWriter" topic_ref="QueueTopic">
+          <data_writer name="QueueTopicWriter" topic_ref="CheckInTopic">
             <datawriter_qos base_name="ClinicQoSLibrary::BestEffortProfile">
             </datawriter_qos>
           </data_writer>
