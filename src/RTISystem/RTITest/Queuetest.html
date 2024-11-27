@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clinic Queue Display</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    table, th, td {
+      border: 1px solid black;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <h1>Clinic Queue Display</h1>
+  <div id="queues-container">
+    <!-- Tables will be dynamically inserted here -->
+  </div>
+  <script>
+    const WEBSOCKET_URL = "ws://localhost:8770"; // Replace with your WebSocket URL
+    const container = document.getElementById("queues-container");
+
+    // Function to clear the container
+    function clearContainer() {
+      container.innerHTML = "";
+    }
+
+    // Function to render the queue data
+    function renderQueue(entries) {
+      clearContainer();
+
+      for (const department in entries) {
+        const departmentData = entries[department];
+
+        const departmentDiv = document.createElement("div");
+        departmentDiv.innerHTML = `<h2>Department: ${department}</h2>`;
+
+        for (const doctor in departmentData) {
+          const doctorData = departmentData[doctor];
+
+          const table = document.createElement("table");
+          table.innerHTML = `
+            <thead>
+              <tr>
+                <th>Doctor Name</th>
+                <th>Priority</th>
+                <th>Appointment ID</th>
+                <th>Patient ID</th>
+                <th>Patient Name</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          `;
+
+          const tbody = table.querySelector("tbody");
+          for (const priority in doctorData) {
+            doctorData[priority].forEach(entry => {
+              const row = document.createElement("tr");
+              row.innerHTML = `
+                <td>${entry.doctorName}</td>
+                <td>${priority}</td>
+                <td>${entry.appointmentID}</td>
+                <td>${entry.patientID}</td>
+                <td>${entry.patientName}</td>
+              `;
+              tbody.appendChild(row);
+            });
+          }
+
+          departmentDiv.appendChild(table);
+        }
+
+        container.appendChild(departmentDiv);
+      }
+    }
+
+    // WebSocket connection
+    const socket = new WebSocket(WEBSOCKET_URL);
+
+    socket.onopen = () => {
+      console.log("Connected to WebSocket server.");
+    };
+
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log("Received data:", data);
+      renderQueue(data);
+    };
+
+    socket.onclose = () => {
+      console.log("WebSocket connection closed.");
+    };
+
+    socket.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+  </script>
+</body>
+</html>

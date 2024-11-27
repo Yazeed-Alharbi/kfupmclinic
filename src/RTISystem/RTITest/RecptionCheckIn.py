@@ -209,6 +209,8 @@ async def publish_to_appointment_queue(appointment_data, writer):
         writer.instance.set_number("Priority", appointment_data[0]["Priority"])
         writer.instance.set_string("doctorName", appointment_data[0]["doctorName"])
         writer.instance.set_string("patientName", appointment_data[0]["patientName"])
+        writer.instance.set_string("department", appointment_data[0]["department"])
+
         writer.write()
         print(f"Published to DDS: {appointment_data}")
     except Exception as e:

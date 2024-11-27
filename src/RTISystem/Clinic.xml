@@ -37,7 +37,7 @@
         <member name="Priority" type="uint8"/>
         <member name="doctorName" type="string" stringMaxLength="MAX_STRING"/>
         <member name="patientName" type="string" stringMaxLength="MAX_STRING"/>
-        <member name="Department" type="string" stringMaxLength="MAX_STRING"/>
+        <member name="department" type="string" stringMaxLength="MAX_STRING"/>
       </struct>
       <struct name="AdminCommand">
         <member name="commandType" type="string" stringMaxLength="MAX_STRING"/>
