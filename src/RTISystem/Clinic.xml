@@ -37,6 +37,7 @@
         <member name="Priority" type="uint8"/>
         <member name="doctorName" type="string" stringMaxLength="MAX_STRING"/>
         <member name="patientName" type="string" stringMaxLength="MAX_STRING"/>
+        <member name="Department" type="string" stringMaxLength="MAX_STRING"/>
       </struct>
       <struct name="AdminCommand">
         <member name="commandType" type="string" stringMaxLength="MAX_STRING"/>
@@ -228,25 +229,19 @@
             <datareader_qos base_name="ClinicQoSLibrary::BestEffortProfile">
             </datareader_qos>
           </data_reader>
+          <data_reader name="CheckInTopicReader" topic_ref="CheckInTopic"/>
         </subscriber>
+        <publisher name="QueueWriter">
+          <data_writer name="QueueTopicWriter" topic_ref="QueueTopic"/>
+        </publisher>
       </domain_participant>
       <domain_participant name="Doctor" domain_ref="Clinic::ClinicSystem">
-        <subscriber name="Appointment Reader">
-          <data_reader name="AppointmentTopicReader" topic_ref="AppointmentTopic">
-            <datareader_qos base_name="ClinicQoSLibrary::ReliableDurableProfile">
-            </datareader_qos>
-          </data_reader>
-        </subscriber>
-        <publisher name="Appointment Writer">
-          <data_writer name="AppointmentTopicWriter" topic_ref="AppointmentTopic">
-            <datawriter_qos base_name="ClinicQoSLibrary::ReliableDurableProfile">
-            </datawriter_qos>
-          </data_writer>
-          <data_writer name="QueueTopicWriter" topic_ref="QueueTopic">
-            <datawriter_qos base_name="ClinicQoSLibrary::ReliableDurableProfile">
-            </datawriter_qos>
-          </data_writer>
+        <publisher name="QueuePublisher">
+          <data_writer name="QueueTopicWriter" topic_ref="QueueTopic"/>
         </publisher>
+        <subscriber name="QueueSubscriber">
+          <data_reader name="QueueTopicReader" topic_ref="QueueTopic"/>
+        </subscriber>
       </domain_participant>
     </domain_participant_library>
 
