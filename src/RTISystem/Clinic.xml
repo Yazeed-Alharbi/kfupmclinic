@@ -227,22 +227,61 @@
       </domain_participant>
       <domain_participant name="QueueDisplay" domain_ref="Clinic::ClinicSystem">
         <subscriber name="CheckedInSubscriber">
-          <data_reader name="QueueTopicReader" topic_ref="QueueTopic">
-            <datareader_qos base_name="ClinicQoSLibrary::BestEffortProfile">
-            </datareader_qos>
-          </data_reader>
           <data_reader name="CheckInTopicReader" topic_ref="CheckInTopic"/>
         </subscriber>
         <publisher name="QueueWriter">
-          <data_writer name="QueueTopicWriter" topic_ref="QueueTopic"/>
+          <data_writer name="QueueTopicWriter" topic_ref="QueueTopic">
+            <datawriter_qos base_name="ClinicQoSLibrary::ReliableDurableProfile">
+            </datawriter_qos>
+          </data_writer>
+          <publisher_qos>
+            <partition>
+              <name>
+                <element>Q2D</element>
+              </name>
+            </partition>
+          </publisher_qos>
         </publisher>
+        <subscriber name="QueueTopicSubscriber">
+          <data_reader name="QueueTopicReader" topic_ref="QueueTopic">
+            <datareader_qos base_name="ClinicQoSLibrary::ReliableDurableProfile">
+            </datareader_qos>
+          </data_reader>
+          <subscriber_qos>
+            <partition>
+              <name>
+                <element>D2Q</element>
+              </name>
+            </partition>
+          </subscriber_qos>
+        </subscriber>
       </domain_participant>
       <domain_participant name="Doctor" domain_ref="Clinic::ClinicSystem">
         <publisher name="QueuePublisher">
-          <data_writer name="QueueTopicWriter" topic_ref="QueueTopic"/>
+          <data_writer name="QueueTopicWriter" topic_ref="QueueTopic">
+            <datawriter_qos base_name="ClinicQoSLibrary::ReliableDurableProfile">
+            </datawriter_qos>
+          </data_writer>
+          <publisher_qos>
+            <partition>
+              <name>
+                <element>D2Q</element>
+              </name>
+            </partition>
+          </publisher_qos>
         </publisher>
         <subscriber name="QueueSubscriber">
-          <data_reader name="QueueTopicReader" topic_ref="QueueTopic"/>
+          <data_reader name="QueueTopicReader" topic_ref="QueueTopic">
+            <datareader_qos base_name="ClinicQoSLibrary::ReliableDurableProfile">
+            </datareader_qos>
+          </data_reader>
+          <subscriber_qos>
+            <partition>
+              <name>
+                <element>Q2D</element>
+              </name>
+            </partition> 
+          </subscriber_qos>
         </subscriber>
       </domain_participant>
     </domain_participant_library>

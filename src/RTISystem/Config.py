@@ -6,3 +6,5 @@ DEPARTMENTS = ['Cardioligy']
 DOCTORS = [{"name":"Mohmmaed","department":"Cardioligy"}]
 QUEUE_HOST = 'localhost'
 QUEUE_PORT = 8770
+DOCTOR_HOST = 'localhost'
+DOCTOR_PORT = 8775
