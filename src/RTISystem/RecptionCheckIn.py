@@ -5,7 +5,13 @@ from functools import partial
 import rticonnextdds_connector as rti
 from Config import SUPABASE_URL, SUPABASE_KEY
 from supabase import create_client, Client
-
+##############################
+##
+## This code is for checkin The interface should have input.
+## The user input is number (appointment ID)
+## The output is to the queue like this 
+## [{'appointmentId': 100, 'patientID': 1, 'clinic': 'Internal Medicine Clinic - عيادة الباطنية', 'scheduledTime': '10:00 AM', 'Priority': 1, 'Finished': False, 'checkedIn': True, 'roomNumber': 101, 'doctorID': 1, 'doctorName': 'Dr. Abdullah Alrashed', 'patientName': 'Ali', 'AppDate': '2024-12-03'}]
+###############################
 # Initialize Supabase client
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -61,7 +67,7 @@ async def main():
     # Initialize DDS Connector
     with rti.open_connector(
         config_name="ClinicParticipants::ReceptionCheckIn",
-        url="../Clinic.xml"
+        url="Clinic.xml"
     ) as connector:
         queue_writer = connector.get_output("CheckInPublisher::QueueWriter")
 
