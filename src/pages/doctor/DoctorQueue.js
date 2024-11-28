@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import MainLayout from "../commonComponents/MainLayout";
+import MainLayout from "../../commonComponents/MainLayout";
 import { FaCalendarPlus, FaCalendarCheck } from "react-icons/fa";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Chip, Button,   Divider,Avatar} from "@nextui-org/react";
 import { FaPersonWalkingDashedLineArrowRight } from "react-icons/fa6";

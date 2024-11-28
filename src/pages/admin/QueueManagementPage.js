@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import MainLayout from "../commonComponents/MainLayout";
+import MainLayout from "../../commonComponents/MainLayout";
 import { FaCalendarCheck, FaCalendarPlus } from "react-icons/fa";
 import { FaPersonWalkingDashedLineArrowRight } from "react-icons/fa6";
-import profileImage from "../assets/default-avatar.jpg";
-import backgroundImage from "../assets/KFUPM_LOGO_WHITE.png";
-import backgroundImage2 from "../assets/KFUPM_LOGO.png";
+import profileImage from "../../assets/default-avatar.jpg";
+import backgroundImage from "../../assets/KFUPM_LOGO_WHITE.png";
+import backgroundImage2 from "../../assets/KFUPM_LOGO.png";
 import { Button, Divider } from "@nextui-org/react";
 import { RiCalendarScheduleFill } from "react-icons/ri";
 

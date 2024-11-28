@@ -1,8 +1,8 @@
 import React from "react";
-import MainLayout from "../commonComponents/MainLayout";
+import MainLayout from "../../commonComponents/MainLayout";
 import { FaCalendarPlus, FaCalendarCheck } from "react-icons/fa";
 import { FaPersonWalkingDashedLineArrowRight } from "react-icons/fa6";
-import backgroundImage from "../assets/KFUPM_LOGO_WHITE.png";
+import backgroundImage from "../../assets/KFUPM_LOGO_WHITE.png";
 
 
 const sidebarButtons = [

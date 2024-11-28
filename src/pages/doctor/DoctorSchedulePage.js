@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import MainLayout from "../commonComponents/MainLayout";
+import MainLayout from "../../commonComponents/MainLayout";
 import { FaCalendarPlus } from "react-icons/fa";
 import { FaPersonWalkingDashedLineArrowRight } from "react-icons/fa6";
 import {

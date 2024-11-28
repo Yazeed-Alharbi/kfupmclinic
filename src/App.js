@@ -1,15 +1,15 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import Sidebar from './commonComponents/SideBar';
-import ScheduleAppointmentPage from './pages/ScheduleAppointmentPage';
-import AppointmentsPage from './pages/AppointmentsPage';
-import DoctorSchedulePage from './pages/DoctorSchedulePage';
-import GenerateAppointmentPage from './pages/GenerateAppointmentPage';
-import AdminDoctorSchedulePage from './pages/AdminDoctorSchedulePage';
-import AdminScheduleAppointmentPage from './pages/AdminScheduleAppointmentPage';
+import ScheduleAppointmentPage from './pages/patient/ScheduleAppointmentPage';
+import AppointmentsPage from './pages/patient/AppointmentsPage';
+import DoctorSchedulePage from './pages/doctor/DoctorSchedulePage';
+import GenerateAppointmentPage from './pages/admin/GenerateAppointmentPage';
+import AdminDoctorSchedulePage from './pages/admin/AdminDoctorSchedulePage';
+import AdminScheduleAppointmentPage from './pages/admin/AdminScheduleAppointmentPage';
 import LoginPage from './pages/loginPage';
-import QueueManagementPage from './pages/QueueManagementPage';
-import QueuePage from './pages/QueuePage';
-import DoctorQueue from './pages/DoctorQueue';
+import QueueManagementPage from './pages/admin/QueueManagementPage';
+import QueuePage from './pages/patient/QueuePage';
+import DoctorQueue from './pages/doctor/DoctorQueue';
 import QueuePage2 from './pages/QueuePage2';
 
 function App() {

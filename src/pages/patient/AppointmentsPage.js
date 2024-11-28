@@ -1,5 +1,5 @@
 import React from "react";
-import MainLayout from "../commonComponents/MainLayout";
+import MainLayout from "../../commonComponents/MainLayout";
 import { FaCalendarPlus, FaCalendarCheck } from "react-icons/fa";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Chip, Button, Tooltip } from "@nextui-org/react";
 import { FaEye, FaEdit, FaTrash } from "react-icons/fa";

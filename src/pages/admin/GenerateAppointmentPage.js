@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import MainLayout from "../commonComponents/MainLayout";
+import MainLayout from "../../commonComponents/MainLayout";
 import { FaCalendarPlus, FaCalendarCheck } from "react-icons/fa";
 import { RiCalendarScheduleFill } from "react-icons/ri";
-import {DeleteIcon} from "../assets/deleteIcon";
+import {DeleteIcon} from "../../assets/deleteIcon";
 import {
   Select,
   SelectItem,

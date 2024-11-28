@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
-import MainLayout from "../commonComponents/MainLayout";
+import MainLayout from "../../commonComponents/MainLayout";
 import { FaCalendarPlus, FaCalendarCheck } from "react-icons/fa";
+import { RiCalendarScheduleFill } from "react-icons/ri";
 import { Card, CardBody, Button, Calendar, Select, SelectItem, ScrollShadow, Input, Chip, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@nextui-org/react";
 import { today, getLocalTimeZone, now } from "@internationalized/date";
 import dayjs from 'dayjs';
@@ -11,13 +12,14 @@ import { TbDental, TbDentalBroken, TbVaccineBottle } from "react-icons/tb";
 import { BsEar } from "react-icons/bs";
 
 dayjs.extend(customParseFormat);
-
-const ScheduleAppointmentPage = () => {
+const AdminScheduleAppointmentPage = () => {
   const sidebarButtons = [
-    { label: "Schedule Appointment", icon: FaCalendarPlus, path: "/schedule-appointment" },
-    { label: "Appointments", icon: FaCalendarCheck, path: "/appointments" },
-    { label: "Queue", icon: FaPersonWalkingDashedLineArrowRight, path: "/queue" },
+    { label: "Generate Appointment", icon: FaCalendarPlus, path: "/generate-appointment" },
+    { label: "Schedule Appointment", icon: FaCalendarCheck, path: "/admin-schedule-appointment" },
+    { label: "Doctor Schedule", icon: RiCalendarScheduleFill, path: "/admin-doctor-schedule" },
+    { label: "Queue Management", icon: FaPersonWalkingDashedLineArrowRight, path: "/queue-management" },
   ];
+  
 
   const clinics = [
     { label: "Internal Medicine Clinic - عيادة الباطنية", icon: GiStomach, time: "20 minutes" },
@@ -128,8 +130,9 @@ const ScheduleAppointmentPage = () => {
     return !selectedClinic || !focusedDate || !selectedTime || !selectedDoctor.size || !patientName || !patientPhone || !patientEmail;
   }, [selectedClinic, focusedDate, selectedTime, selectedDoctor, patientName, patientPhone, patientEmail]);
 
+
   return (
-    <MainLayout title="Schedule Appointment" sidebarButtons={sidebarButtons} userName="Abdullah Alalawi" userType="Patient">
+    <MainLayout title="Schedule Appointment" sidebarButtons={sidebarButtons} userName="Someone" userType="Admin">
       <div className="p-4 space-y-6">
         <Card>
           <CardBody>
@@ -264,4 +267,4 @@ const ScheduleAppointmentPage = () => {
   );
 };
 
-export default ScheduleAppointmentPage;
+export default AdminScheduleAppointmentPage;
