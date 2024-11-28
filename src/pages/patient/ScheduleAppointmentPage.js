@@ -9,7 +9,7 @@ import { FaVialVirus, FaHandsHoldingChild, FaEye, FaSyringe, FaHandHoldingMedica
 import { GiStomach, GiToothbrush } from "react-icons/gi";
 import { TbDental, TbDentalBroken, TbVaccineBottle } from "react-icons/tb";
 import { BsEar } from "react-icons/bs";
-import supabase from "../commonComponents/supabase";
+import supabase from "../../commonComponents/supabase";
 
 
 dayjs.extend(customParseFormat);
