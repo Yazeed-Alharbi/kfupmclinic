@@ -15,9 +15,9 @@ import {
   TableColumn,
   TableRow,
   TableCell,
-  getKeyValue
+  //getKeyValue
 } from "@nextui-org/react";
-import { AiOutlineDelete } from "react-icons/ai";
+//import { AiOutlineDelete } from "react-icons/ai";
 import { FaPersonWalkingDashedLineArrowRight } from "react-icons/fa6";
 
 export const clinics = [
@@ -94,7 +94,7 @@ const GenerateAppointmentPage = () => {
     if(key){
       setTableSelect(key);
       console.log(key)
-      let selectedRow=  doctors[key].map((item) => {if(item.days) return item}) // todo make this days
+      let selectedRow=  doctors[key].map((item) => {if(item.days) return item}) // TODO: make this days
       setRows(selectedRow)
     }
     else{
