@@ -29,7 +29,6 @@ async def publish_patient_info(patient_data, writer):
         writer.instance.set_string("name", patient_data["name"])
         writer.instance.set_string("Email", patient_data["Email"])
         writer.instance.set_string("ContactNumber", patient_data["ContactNumber"])
-        
         print(f"Publishing to DDS: {patient_data}")
         writer.write()
     except Exception as e:

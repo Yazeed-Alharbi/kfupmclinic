@@ -8,7 +8,6 @@ import queue
 from websockets import serve
 from websockets.exceptions import ConnectionClosed
 import asyncio
-sys.path.append(os.path.abspath("C:/Users/rayan/OneDrive/Documents/GitHub/kfupmclinic/src/RTISystem/RTITest"))
 from Config import *
 
 newEntries = {}
@@ -76,7 +75,9 @@ def recieveCheckIn(checkInReader, queueWriter):
                 "Priority": priority,
                 "doctorName": doctor,
                 "patientName": patient_name,
-                "department": department
+                "department": department,
+                "entered": False,
+                "finished": False
             }
 
             print(f"Received Appointment {appointment_id}")
@@ -114,8 +115,9 @@ def recieveDoctorFinish(queueReader):
             priority = sample.get_number("Priority")
             doctor = sample.get_string("doctorName")
             patient_name = sample.get_string("patientName")
-            department = sample.get_string("Department")
-
+            department = sample.get_string("department")
+            finished  = sample.get_boolean("finished")
+            entered  = sample.get_boolean("entered")
             with lock:
                 if department not in entries:
                     continue
@@ -129,11 +131,22 @@ def recieveDoctorFinish(queueReader):
                     "Priority": priority,
                     "doctorName": doctor,
                     "patientName": patient_name,
-                    "Department": department
+                    "Department": department,
+                    "entered": entered,
+                    "finished": finished
                 }
                 
-                if queue_entry in entries[department][doctor][priority]:
-                    entries[department][doctor][priority].remove(queue_entry)
+                for i in range(len(entries[department][doctor][priority])):
+                    if entries[department][doctor][priority][i]["appointment_id"] == appointment_id:
+                        if finished:
+                            entries[department][doctor][priority].pop(i)
+                        elif entered:
+                            entries[department][doctor][priority][i] = queue_entry
+                            
+                            
+
+                        
+                    
         
         time.sleep(1)
 
@@ -159,7 +172,7 @@ def start_dds_tasks():
         # Start receiving check-ins and doctor finishes
         threading.Thread(target=recieveCheckIn, args=(checkInReader, queueWriter), daemon=True).start()
         # threading.Thread(target=recieveDoctorFinish, args=(queueReader,), daemon=True).start()
-
+        threading.Thread(target=recieveDoctorFinish, args=(queueReader,), daemon=True).start()
         # Block to keep the DDS tasks running
         while True:
             time.sleep(1)
