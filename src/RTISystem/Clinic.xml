@@ -38,7 +38,7 @@
         <member name="doctorName" type="string" stringMaxLength="MAX_STRING"/>
         <member name="patientName" type="string" stringMaxLength="MAX_STRING"/>
         <member name="department" type="string" stringMaxLength="MAX_STRING"/>
-        <member name="entered" type="boolean"/>
+        <member name="entered" type="boolean"/>  
         <member name="finished" type="boolean"/>
       </struct>
       <struct name="AdminCommand">

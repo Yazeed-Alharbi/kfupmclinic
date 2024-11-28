@@ -99,13 +99,22 @@ def recieveCheckIn(checkInReader, queueWriter):
 # Function to publish updates to DDS
 def publishQueue(queueWriter, payload):
     try:
-        queueWriter.instance.set_dictionary(payload)
+        print("publishing payload",payload)
+        queueWriter.instance.set_number("appointmentID", int(payload["appointmentID"]))
+        queueWriter.instance.set_number("patientID", int(payload["patientID"]))
+        queueWriter.instance.set_number("doctorID", payload["doctorID"])
+        queueWriter.instance.set_number("Priority", payload["Priority"])
+        queueWriter.instance.set_string("doctorName",payload['doctorName'])
+        queueWriter.instance.set_string("patientName",payload['patientName'])
+        queueWriter.instance.set_string("department",payload['department'])
+        queueWriter.instance.set_boolean("entered",payload['entered'])
+        queueWriter.instance.set_boolean("finished",payload['finished'])
         queueWriter.write()
     except Exception as e:
         print(f"Error encountered when writing to queue topic: {e}")
 
 # DDS task to receive doctor finish updates
-def recieveDoctorFinish(queueReader):
+def recieveDoctorFinish(queueReader,queueUpdateWriter):
     while True:
         queueReader.take()
         for sample in queueReader.samples.valid_data_iter:
@@ -123,7 +132,14 @@ def recieveDoctorFinish(queueReader):
                     continue
                 if doctor not in entries[department]:
                     continue
-
+                if finished:
+                    finished = True
+                else:
+                    finished = False
+                if entered:
+                    entered = True
+                else:
+                    entered = False 
                 queue_entry = {
                     "appointmentID": appointment_id,
                     "patientID": patient_id,
@@ -131,18 +147,19 @@ def recieveDoctorFinish(queueReader):
                     "Priority": priority,
                     "doctorName": doctor,
                     "patientName": patient_name,
-                    "Department": department,
+                    "department": department,
                     "entered": entered,
                     "finished": finished
                 }
-                
+                print("recieved doctor", queue_entry)
                 for i in range(len(entries[department][doctor][priority])):
-                    if entries[department][doctor][priority][i]["appointment_id"] == appointment_id:
+                    if entries[department][doctor][priority][i]["appointmentID"] == appointment_id:
                         if finished:
                             entries[department][doctor][priority].pop(i)
                         elif entered:
                             entries[department][doctor][priority][i] = queue_entry
-                            
+                publishQueue(queueUpdateWriter,queue_entry)
+            asyncio.run(broadcast())                
                             
 
                         
@@ -165,17 +182,25 @@ def start_dds_tasks():
         config_name="ClinicParticipants::QueueDisplay",
         url="clinic.xml"
     ) as connector:
-        queueReader = connector.get_input("CheckedInSubscriber::QueueTopicReader")
+        
         checkInReader = connector.get_input("CheckedInSubscriber::CheckInTopicReader")
         queueWriter = connector.get_output("QueueWriter::QueueTopicWriter")
-
+        
         # Start receiving check-ins and doctor finishes
         threading.Thread(target=recieveCheckIn, args=(checkInReader, queueWriter), daemon=True).start()
         # threading.Thread(target=recieveDoctorFinish, args=(queueReader,), daemon=True).start()
-        threading.Thread(target=recieveDoctorFinish, args=(queueReader,), daemon=True).start()
         # Block to keep the DDS tasks running
-        while True:
-            time.sleep(1)
+        with rti.open_connector(
+        config_name="ClinicParticipants::QueueDisplay",
+        url="clinic.xml"
+        ) as connector2:
+            queueUpdateWriter = connector.get_output("QueueWriter::QueueTopicWriter")
+            queueReader = connector2.get_input("QueueTopicSubscriber::QueueTopicReader")
+            threading.Thread(target=recieveDoctorFinish, args=(queueReader,queueUpdateWriter), daemon=True).start()
+            while True:
+                time.sleep(1)
+    
+        
 
 # Start WebSocket server in a separate thread
 def start_websocket_server():

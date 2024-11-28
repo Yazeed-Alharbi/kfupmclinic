@@ -26,7 +26,7 @@ async def broadcast():
     """
     to_remove = []
     message = json.dumps(entries)  # Convert entire entries queue to JSON
-
+    print("BroadCasting")
     with connectLock:
         for websocket in connected_clients:
             try:
@@ -57,7 +57,7 @@ async def websocket_handler(websocket, path,queueWriter):
                 if "Command" in payload and "Entry" in payload:
                     print(f"Received Command: {payload['Command']} for Entry: {payload['Entry']}")
                     # Process command and update DDS
-                    recieveCommand(payload, queueWriter)
+                    await recieveCommand(payload, queueWriter)
                 else:
                     print(f"Invalid WebSocket message: {message}")
             except json.JSONDecodeError:
@@ -81,7 +81,14 @@ def recieveInQueue(QueueReader):
             department = sample.get_string("department")
             finished  = sample.get_boolean("finished")
             entered  = sample.get_boolean("entered")
-            
+            if finished:
+                finished = True
+            else:
+                finished = False
+            if entered:
+                entered = True
+            else:
+                entered = False 
             queue_entry = {
                 "appointmentID": appointment_id,
                 "patientID": patient_id,
@@ -90,25 +97,41 @@ def recieveInQueue(QueueReader):
                 "doctorName": doctor,
                 "patientName": patient_name,
                 "department": department,
-                "entered": finished,
-                "finished": entered
+                "entered": entered,
+                "finished": finished
             }
 
             print(f"Received Appointment {appointment_id}")
             print(queue_entry)
             with lock:
-                if department not in entries:
-                    entries[department] = {}
-                if doctor not in entries[department]:
-                    entries[department][doctor] = {0: [], 1: []}
-                
-                entries[department][doctor][priority].append(queue_entry)
+                found = False
+                inserted = False
+                try:
+                    if queue_entry in entries[department][doctor][priority]:
+                        found = True
+                    else:
+                        for i in range(len(entries[department][doctor][priority])):
+                            if entries[department][doctor][priority][i]["appointmentID"] == appointment_id:
+                                entries[department][doctor][priority].pop(i)
+                                entries[department][doctor][priority].insert(i,queue_entry)
+                                inserted = True
+                                
+                                
+                except:
+                        found = False
+                if (not found) and (not inserted):
+                    if department not in entries:
+                        entries[department] = {}
+                    if doctor not in entries[department]:
+                        entries[department][doctor] = {0: [], 1: []}
+                    
+                    entries[department][doctor][priority].append(queue_entry)
                 print(entries)
             # Place updated data in the queue for the WebSocket thread to broadcast
             asyncio.run(broadcast())  # Send the entire queue to connected WebSockets
         
         time.sleep(1)
-def recieveCommand(payload,queueWriter):
+async def recieveCommand(payload,queueWriter):
     # function recieves payload, does updates, pushes the updates to both supabase and the queue 
     toPublish = None
     if not payload["Command"]:
@@ -123,14 +146,14 @@ def recieveCommand(payload,queueWriter):
     priority = entry['Priority']
     appointment_id = entry['appointmentID']
     with lock:
-        if payload["COMMAND"] == "enter":
+        if payload["Command"] == "enter":
             for i in range(len(entries[department][doctor][priority])):
-                        if entries[department][doctor][priority][i]["appointment_id"] == appointment_id:
+                        if entries[department][doctor][priority][i]["appointmentID"] == appointment_id:
                                 entries[department][doctor][priority][i]["entered"] = True
                                 toPublish = entries[department][doctor][priority][i]
-        elif payload["COMMAND"] == "finish":
+        elif payload["Command"] == "finish":
             for i in range(len(entries[department][doctor][priority])):
-                        if entries[department][doctor][priority][i]["appointment_id"] == appointment_id:
+                        if entries[department][doctor][priority][i]["appointmentID"] == appointment_id:
                                 entries[department][doctor][priority][i]["finished"] = True
                                 entries[department][doctor][priority][i]["entered"] = True
                                 toPublish = entries[department][doctor][priority][i]
@@ -139,12 +162,23 @@ def recieveCommand(payload,queueWriter):
             publishQueue(queueWriter,toPublish)
         else:
             print("Nothing to publish")
-    asyncio.run(broadcast())
+    await asyncio.create_task(broadcast())
         
 # Function to publish updates to DDS
 def publishQueue(queueWriter, payload):
     try:
-        queueWriter.instance.set_dictionary(payload)
+        
+        print(payload)
+        print("----")
+        queueWriter.instance.set_number("appointmentID", int(payload["appointmentID"]))
+        queueWriter.instance.set_number("patientID", int( payload["patientID"]))
+        queueWriter.instance.set_number("doctorID", payload["doctorID"])
+        queueWriter.instance.set_number("Priority", payload["Priority"])
+        queueWriter.instance.set_string("doctorName",payload['doctorName'])
+        queueWriter.instance.set_string("patientName",payload['patientName'])
+        queueWriter.instance.set_string("department",payload['department'])
+        queueWriter.instance.set_boolean("entered",payload['entered'])
+        queueWriter.instance.set_boolean("finished",payload['finished'])
         queueWriter.write()
     except Exception as e:
         print(f"Error encountered when writing to queue topic: {e}")

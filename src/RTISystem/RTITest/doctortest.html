@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clinic Queue Display</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    table, th, td {
+      border: 1px solid black;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    h2 {
+      margin-top: 30px;
+    }
+    button {
+      margin-left: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Clinic Queue Display</h1>
+  <div id="queues-container">
+    <!-- Tables will be dynamically inserted here -->
+  </div>
+  <script>
+    const WEBSOCKET_URL = "ws://localhost:8775"; // Replace YOUR_PORT_HERE with the actual WebSocket server port
+    const container = document.getElementById("queues-container");
+    let socket = null;
+
+    // Function to clear the container
+    function clearContainer() {
+      container.innerHTML = "";
+    }
+
+    // Function to send a command to the WebSocket server
+    function sendCommand(command, entry) {
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        const payload = {
+          Command: command,
+          Entry: entry,
+        };
+        console.log("Sending payload:", payload);
+        socket.send(JSON.stringify(payload));
+      } else {
+        console.error("WebSocket connection is not open.");
+      }
+    }
+
+    // Function to render the queue data
+    function renderQueue(entries) {
+      clearContainer();
+
+      for (const department in entries) {
+        const departmentData = entries[department];
+
+        const departmentDiv = document.createElement("div");
+        departmentDiv.innerHTML = `<h2>Department: ${department}</h2>`;
+
+        for (const doctor in departmentData) {
+          const doctorData = departmentData[doctor];
+
+          const table = document.createElement("table");
+          table.innerHTML = `
+            <thead>
+              <tr>
+                <th>Doctor Name</th>
+                <th>Priority</th>
+                <th>Appointment ID</th>
+                <th>Patient ID</th>
+                <th>Patient Name</th>
+                <th>Entered</th>
+                <th>Finished</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          `;
+
+          const tbody = table.querySelector("tbody");
+          for (const priority in doctorData) {
+            doctorData[priority].forEach(entry => {
+              const row = document.createElement("tr");
+              row.innerHTML = `
+                <td>${entry.doctorName}</td>
+                <td>${priority}</td>
+                <td>${entry.appointmentID}</td>
+                <td>${entry.patientID}</td>
+                <td>${entry.patientName}</td>
+                <td>${entry.entered}</td>
+                <td>${entry.finished}</td>
+                <td>
+                  <button onclick='sendCommand("enter", ${JSON.stringify(entry)})'>Enter</button>
+                  <button onclick='sendCommand("finish", ${JSON.stringify(entry)})'>Finish</button>
+                </td>
+              `;
+              tbody.appendChild(row);
+            });
+          }
+
+          departmentDiv.appendChild(table);
+        }
+
+        container.appendChild(departmentDiv);
+      }
+    }
+
+    // WebSocket connection
+    function setupWebSocket() {
+      socket = new WebSocket(WEBSOCKET_URL);
+
+      socket.onopen = () => {
+        console.log("Connected to WebSocket server.");
+      };
+
+      socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        console.log("Received data:", data);
+        renderQueue(data);
+      };
+
+      socket.onclose = () => {
+        console.log("WebSocket connection closed. Reconnecting...");
+        setTimeout(setupWebSocket, 1000); // Attempt to reconnect after 1 second
+      };
+
+      socket.onerror = (error) => {
+        console.error("WebSocket error:", error);
+      };
+    }
+
+    // Initialize WebSocket connection
+    setupWebSocket();
+  </script>
+</body>
+</html>
