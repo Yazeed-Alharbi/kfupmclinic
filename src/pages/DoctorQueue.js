@@ -23,7 +23,8 @@ const statusColorMap = {
 
 const AppointmentsPage = () => {
   const sidebarButtons = [
-    { label: "Patients Queue", icon: FaPersonWalkingDashedLineArrowRight, path: "/DoctorQueue" },
+    { label: "Appointments schedule", icon: FaCalendarPlus, path: "/doctor-schedule" },
+    { label: "Patients Queue", icon: FaPersonWalkingDashedLineArrowRight, path: "/doctor-queue" },
   ];
 
   const handlePatient = (appointmentID) => {

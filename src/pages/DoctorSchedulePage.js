@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import MainLayout from "../commonComponents/MainLayout";
 import { FaCalendarPlus } from "react-icons/fa";
+import { FaPersonWalkingDashedLineArrowRight } from "react-icons/fa6";
 import {
   Table,
   TableHeader,
@@ -22,7 +23,8 @@ const initialRows = [
 
 const DoctorSchedulePage = () => {
   const sidebarButtons = [
-    { label: "Schedule Appointment", icon: FaCalendarPlus, path: "/doctor-schedule" },
+    { label: "Appointments schedule", icon: FaCalendarPlus, path: "/doctor-schedule" },
+    { label: "Patients Queue", icon: FaPersonWalkingDashedLineArrowRight, path: "/doctor-queue" },
   ];
   
   const [selectedRow, setSelectedRow] = useState(null);
@@ -49,7 +51,7 @@ const DoctorSchedulePage = () => {
   return (
     <MainLayout title="My Schedule" sidebarButtons={sidebarButtons} userName="Someone" userType="Doctor">
       {!selectedRow ? (
-        <div className="flex flex-col gap-3 flex-wrap md:flex-nowrap gap-4 ml-10 mt-10 mb-5 mr-10">
+        <div className="flex flex-col gap-3 flex-wrap md:flex-nowrap ml-10 mt-10 mb-5 mr-10">
           <Table
             aria-label="Doctor Schedule Table"
             selectionMode="single"

@@ -27,7 +27,7 @@ function App() {
         <Route path="/queue-management" element={<QueueManagementPage />} />
         <Route path="/queue" element={<QueuePage />} />
         <Route path="/queue2" element={<QueuePage2/>} />
-        <Route path="/DoctorQueue" element={<DoctorQueue />} />
+        <Route path="/doctor-queue" element={<DoctorQueue />} />
       </Routes>
     </BrowserRouter>
   );
