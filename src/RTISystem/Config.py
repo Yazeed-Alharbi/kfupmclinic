@@ -8,3 +8,5 @@ QUEUE_HOST = 'localhost'
 QUEUE_PORT = 8770
 DOCTOR_HOST = 'localhost'
 DOCTOR_PORT = 8775
+KIOSK_HOST = 'localhost'
+KIOSK_PORT = 8780

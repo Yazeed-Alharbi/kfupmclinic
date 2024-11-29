@@ -69,19 +69,19 @@ async def update_to_checkin_appointment(appointment_id):
 async def main():
     # Initialize DDS Connector
     with rti.open_connector(
-        config_name="ClinicParticipants::ReceptionCheckIn",
+        config_name="ClinicParticipants::Ticket Dispenser Check In",
         url="Clinic.xml"
     ) as connector:
-        queue_writer = connector.get_output("CheckInPublisher::QueueWriter")
+        queue_writer = connector.get_output("CheckInPublisher::QueueTopicWriter")
 
         # Start WebSocket server
         websocket_server = websockets.serve(
             partial(process_appointment_id, queue_writer=queue_writer),
-            host=HOST,
-            port=PORT
+            host=KIOSK_HOST,
+            port=KIOSK_PORT
         )
 
-        print("WebSocket server running on ws://localhost:",PORT)
+        print("WebSocket server running on ws://localhost:",KIOSK_PORT)
         await websocket_server
         await asyncio.Future()  # Keep the server running
 
