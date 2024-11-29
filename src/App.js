@@ -11,6 +11,7 @@ import QueueManagementPage from './pages/admin/QueueManagementPage';
 import QueuePage from './pages/patient/QueuePage';
 import DoctorQueue from './pages/doctor/DoctorQueue';
 import QueuePage2 from './pages/QueuePage2';
+import AdminQueuePage from './pages/admin/AllDoctorsQueue';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route path="/queue" element={<QueuePage />} />
         <Route path="/queue2" element={<QueuePage2/>} />
         <Route path="/doctor-queue" element={<DoctorQueue />} />
+        <Route path="/admin-queue" element={<AdminQueuePage />} />
       </Routes>
     </BrowserRouter>
   );

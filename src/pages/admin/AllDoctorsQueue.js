@@ -7,46 +7,29 @@ import { useWebSocket } from "../../hooks/useWebSocket";
 
 const DoctorQueue = () => {
   const sidebarButtons = [
-    { label: "Appointments schedule", icon: FaCalendarPlus, path: "/doctor-schedule" },
-    { label: "My Patients' Queue", icon: FaPersonWalkingDashedLineArrowRight, path: "/doctor-queue" },
+    //TODO: Add sidebar buttons and reflect it in other pages
   ];
 
   const [queueData, setQueueData] = useState({});
   const { sendMessage, lastMessage } = useWebSocket("ws://localhost:8775");
 
-  //This is static for now, but it should be fetched from authentication (Cookies)
-  const doctorID = 1;
-  const doctorName = "Dr. Abdullah Alrashed";
-
   useEffect(() => {
     if (lastMessage) {
       const data = JSON.parse(lastMessage);
-      const filteredData = filterQueueDataForDoctor(data, doctorID, doctorName);
-      setQueueData(filteredData);
+      setQueueData(data);
     }
   }, [lastMessage]);
-
-  const filterQueueDataForDoctor = (data, doctorID, doctorName) => {
-    const filteredData = {};
-    Object.entries(data).forEach(([department, departmentData]) => {
-      if (departmentData[doctorName]) {
-        filteredData[department] = {
-          [doctorName]: departmentData[doctorName]
-        };
-      }
-    });
-    return filteredData;
-  };
 
   const handleAction = (action, entry) => {
     sendMessage(JSON.stringify({ Command: action, Entry: entry }));
     
+    // Update local state to reflect changes immediately
     setQueueData(prevData => {
       const newData = JSON.parse(JSON.stringify(prevData));
       const departmentData = newData[entry.department];
-      const doctorData = departmentData[doctorName];
-      const priorityData = doctorData[entry.Priority.toString()];
-    
+      const doctorData = departmentData[entry.doctorName];
+      const priorityData = doctorData[entry.priority];
+      
       const updatedEntry = priorityData.find(e => e.appointmentID === entry.appointmentID);
       if (updatedEntry) {
         if (action === "enter") {
@@ -82,8 +65,8 @@ const DoctorQueue = () => {
                   entries.map((entry, index) => (
                     <TableRow key={`${entry.appointmentID}-${index}`}>
                       <TableCell>
-                        <Chip color={priority === "0" ? "danger" : priority === "1" ? "primary" : "success"}>
-                          {priority === "0" ? "High" : priority === "1" ? "Normal" : "Low"}
+                        <Chip color={priority === "high" ? "danger" : priority === "medium" ? "warning" : "success"}>
+                          {priority}
                         </Chip>
                       </TableCell>
                       <TableCell>{entry.appointmentID}</TableCell>
@@ -140,12 +123,12 @@ const DoctorQueue = () => {
   };
 
   return (
-    <MainLayout title="My Patients' Queue" sidebarButtons={sidebarButtons} userName={doctorName} userType="Doctor">
+    <MainLayout title="My Patients' Queue" sidebarButtons={sidebarButtons} userName="Dr. Ali Smith" userType="Doctor">
       <div className="p-6">
-        <h1 className="text-3xl font-bold mb-6">My Patient Queue</h1>
+        <h1 className="text-3xl font-bold mb-6">Clinic Queue Management</h1>
         <Divider className="my-4" />
         {Object.keys(queueData).length === 0 ? (
-          <p className="text-center text-xl">No patients in the queue at the moment.</p>
+          <p className="text-center text-xl">Loading queue data...</p>
         ) : (
           renderQueue()
         )}
