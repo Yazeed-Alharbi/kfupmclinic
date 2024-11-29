@@ -3,61 +3,65 @@ import { Chip } from "@nextui-org/react";
 import kfupmlogo from "../assets/kfupmlogo.png";
 
 const QueuePage2 = () => {
-  const queues = [
-    {
-      clinicName: "Dental Clinic",
-      doctors: [
-        {
-          doctorName: "Dr. Smith",
-          patients: [
-            { name: "Rashed Almanie", appointmentId: 101, room: "1001" },
-            { name: "Yazeed Alharbi", appointmentId: 102, room: "1002" },
-            { name: "Abdulaziz Almutairi", appointmentId: 103, room: "1003" },
-          ],
-        },
-        {
-          doctorName: "Dr. Brown",
-          patients: [
-            { name: "Turki Alsomari", appointmentId: 104, room: "1004" },
-            { name: "Rayan Alamrani", appointmentId: 105, room: "1005" },
-          ],
-        },
-      ],
-    },
-    {
-      clinicName: "Cardiology Clinic",
-      doctors: [
-        {
-          doctorName: "Dr. Lee",
-          patients: [
-            { name: "Patient A", appointmentId: 201, room: "2001" },
-            { name: "Patient B", appointmentId: 202, room: "2002" },
-          ],
-        },
-        {
-          doctorName: "Dr. Kim",
-          patients: [
-            { name: "Patient C", appointmentId: 203, room: "2003" },
-            { name: "Patient D", appointmentId: 204, room: "2004" },
-          ],
-        },
-      ],
-    },
-  ];
-
+  const [queues, setQueues] = useState({});
+  const [finishedPatients, setFinishedPatients] = useState([]);
   const [currentClinicIndex, setCurrentClinicIndex] = useState(0);
   const [currentDoctorIndex, setCurrentDoctorIndex] = useState(0);
   const [showAd, setShowAd] = useState(false);
 
+  const WEBSOCKET_URL = "ws://localhost:8770";
+
+  useEffect(() => {
+    const socket = new WebSocket(WEBSOCKET_URL);
+
+    socket.onopen = () => {
+      console.log("Connected to WebSocket server.");
+    };
+
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log("Received data from WebSocket:", data);
+
+      setQueues({ ...data.entries });
+      setFinishedPatients([...data.finishedPatients]);
+    };
+
+    socket.onclose = () => {
+      console.log("WebSocket connection closed.");
+    };
+
+    socket.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+
+    return () => {
+      socket.close();
+    };
+  }, []);
+  useEffect(() => {
+    if (Object.keys(queues).length > 0) {
+      setCurrentClinicIndex(0);
+      setCurrentDoctorIndex(0);
+    }
+  }, [queues]);
+
   useEffect(() => {
     const interval = setInterval(() => {
+      const clinicKeys = Object.keys(queues);
+
       if (showAd) {
         setShowAd(false);
+      } else if (clinicKeys.length === 0) {
+        
+        setShowAd(true);
       } else {
-        const currentClinic = queues[currentClinicIndex];
-        if (currentDoctorIndex < currentClinic.doctors.length - 1) {
+        
+        const currentClinic = queues[clinicKeys[currentClinicIndex]];
+        const doctorsInCurrentClinic = Object.keys(currentClinic || {});
+
+        if (currentDoctorIndex < doctorsInCurrentClinic.length - 1) {
           setCurrentDoctorIndex((prev) => prev + 1);
-        } else if (currentClinicIndex < queues.length - 1) {
+        } else if (currentClinicIndex < clinicKeys.length - 1) {
           setCurrentClinicIndex((prev) => prev + 1);
           setCurrentDoctorIndex(0);
         } else {
@@ -69,20 +73,22 @@ const QueuePage2 = () => {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [currentClinicIndex, currentDoctorIndex, showAd, queues]);
+  }, [queues, currentClinicIndex, currentDoctorIndex, showAd]);
 
-  const currentClinic = queues[currentClinicIndex];
-  const currentDoctor = currentClinic.doctors[currentDoctorIndex];
+  const clinicKeys = Object.keys(queues);
+  const currentClinic =
+    clinicKeys.length > 0 ? queues[clinicKeys[currentClinicIndex]] : null;
+  const currentDoctorKey = currentClinic
+    ? Object.keys(currentClinic)[currentDoctorIndex]
+    : null;
+  const currentDoctor = currentDoctorKey
+    ? currentClinic[currentDoctorKey]
+    : null;
 
-  const currentPatientQueue = currentDoctor.patients.map((patient, index) => {
-    if (index < 1) {
-      return { ...patient, state: "previous" };
-    } else if (index === 1) {
-      return { ...patient, state: "current" };
-    } else {
-      return { ...patient, state: "future" };
-    }
-  });
+  useEffect(() => {
+    console.log("Updated Queues:", queues);
+    console.log("Updated Finished Patients:", finishedPatients);
+  }, [queues, finishedPatients]);
 
   return (
     <div className="h-screen w-screen flex flex-col">
@@ -102,84 +108,149 @@ const QueuePage2 = () => {
             <p className="text-4xl font-bold text-kfupmgreen">Ad!</p>
             <p className="text-xl text-gray-500 mt-4">Text</p>
           </div>
+        ) : clinicKeys.length === 0 ? (
+          <div className="flex justify-center items-center h-full">
+            <p className="text-2xl text-textgray font-semibold">
+              No active clinics at the moment.
+            </p>
+          </div>
         ) : (
           <>
             <p className="text-2xl text-textgray font-semibold">Department</p>
             <div className="flex space-x-4">
-              {queues.map((clinic, index) => (
+              {clinicKeys.map((clinicName, index) => (
                 <Chip
-                  key={clinic.clinicName}
+                  key={clinicName}
                   className={`min-w-40 py-3 px-6 rounded-lg ${
                     index === currentClinicIndex
                       ? "bg-kfupmgreen text-white"
                       : "bg-gray-200 text-gray-500"
                   }`}
                 >
-                  <span className="font-semibold text-lg">
-                    {clinic.clinicName}
-                  </span>
+                  <span className="font-semibold text-lg">{clinicName}</span>
                 </Chip>
               ))}
             </div>
 
             <p className="text-2xl text-textgray font-semibold">Doctor</p>
             <div className="flex space-x-4">
-              {currentClinic.doctors.map((doctor, index) => (
-                <Chip
-                  key={doctor.doctorName}
-                  className={`min-w-40 py-3 px-6 rounded-lg ${
-                    index === currentDoctorIndex
-                      ? "bg-kfupmgreen text-white"
-                      : "bg-gray-200 text-gray-500"
-                  }`}
-                >
-                  <span className="font-semibold text-lg">
-                    {doctor.doctorName}
-                  </span>
-                </Chip>
-              ))}
-            </div>
-
-            <p className="text-2xl text-textgray font-semibold">Patient</p>
-            <div className="flex gap-8">
-              <div className="bg-kfupmgreen text-white p-6 rounded-xl w-96 flex flex-col items-center">
-                <p className="text-lg font-medium">Patient</p>
-                <p className="text-2xl font-bold">
-                  {currentPatientQueue.find(
-                    (patient) => patient.state === "current"
-                  )?.name || "No Current Patient"}
-                </p>
-                <p className="text-lg font-medium mt-4">Appointment ID</p>
-                <p className="text-2xl font-bold">
-                  {currentPatientQueue.find(
-                    (patient) => patient.state === "current"
-                  )?.appointmentId || "-"}
-                </p>
-                <p className="text-lg font-medium mt-4">Room</p>
-                <p className="text-2xl font-bold">
-                  {currentPatientQueue.find(
-                    (patient) => patient.state === "current"
-                  )?.room || "-"}
-                </p>
-              </div>
-
-              <div className="flex flex-col space-y-4">
-                {currentPatientQueue.map((patient) => (
+              {currentClinic &&
+                Object.keys(currentClinic).map((doctorName, index) => (
                   <Chip
-                    key={patient.name}
-                    className={`min-w-96 py-3 px-6 rounded-lg ${
-                      patient.state === "previous"
-                        ? "opacity-50 border border-kfupmgreen text-gray-500"
-                        : patient.state === "current"
-                        ? "bg-green-100 text-kfupmgreen border border-kfupmgreen"
-                        : "border border-kfupmgreen text-gray-500 bg-white"
+                    key={doctorName}
+                    className={`min-w-40 py-3 px-6 rounded-lg ${
+                      index === currentDoctorIndex
+                        ? "bg-kfupmgreen text-white"
+                        : "bg-gray-200 text-gray-500"
                     }`}
                   >
-                    <span className="font-semibold text-lg">{patient.name}</span>
+                    <span className="font-semibold text-lg">{doctorName}</span>
                   </Chip>
                 ))}
-              </div>
             </div>
+
+            {currentDoctor && (
+              <>
+                <p className="text-2xl text-textgray font-semibold">Patient</p>
+                <div className="flex gap-8">
+                  <div className="flex flex-col space-y-4">
+                    {finishedPatients
+                      .filter(
+                        (patient) => patient.doctorName === currentDoctorKey
+                      )
+                      .map((patient) => (
+                        <Chip
+                          key={`finished-${patient.appointmentID}`}
+                          className="min-w-96 py-3 px-6 rounded-lg bg-gray-300 text-gray-600 border border-gray-400"
+                        >
+                          <span className="font-semibold text-lg">
+                            {patient.patientName}
+                          </span>
+                        </Chip>
+                      ))}
+
+                    {(() => {
+                      // Collect all patients into a single array
+                      const allPatients = [];
+                      Object.keys(currentDoctor).forEach((priority) => {
+                        allPatients.push(...currentDoctor[priority]);
+                      });
+
+                      //patients with entered=true come first
+                      allPatients.sort((a, b) => {
+                        if (a.entered && !b.entered) return -1;
+                        if (!a.entered && b.entered) return 1;
+                        // if both have the same 'entered' status, sort by priority
+                        if (a.Priority !== b.Priority)
+                          return a.Priority - b.Priority;
+                        return 0;
+                      });
+
+                      return allPatients.map((patient) => (
+                        <Chip
+                          key={patient.appointmentID}
+                          className={`min-w-96 py-3 px-6 rounded-lg ${
+                            patient.finished
+                              ? "opacity-50 border border-gray-500 text-gray-500"
+                              : patient.entered
+                              ? "bg-kfupmgreen text-white border border-kfupmgreen"
+                              : "border border-kfupmgreen text-gray-500 bg-white"
+                          }`}
+                        >
+                          <span className="font-semibold text-lg">
+                            {patient.patientName}
+                          </span>
+                        </Chip>
+                      ));
+                    })()}
+                  </div>
+
+                  {/* Display the details of the first patient */}
+                  {(() => {
+                   
+                    const allPatients = [];
+                    Object.keys(currentDoctor).forEach((priority) => {
+                      allPatients.push(...currentDoctor[priority]);
+                    });
+
+                    allPatients.sort((a, b) => {
+                      if (a.entered && !b.entered) return -1;
+                      if (!a.entered && b.entered) return 1;
+                      if (a.Priority !== b.Priority)
+                        return a.Priority - b.Priority;
+                      return 0;
+                    });
+
+                    const firstPatient = allPatients[0];
+
+                    return firstPatient ? (
+                      <div
+                        className={`${
+                          firstPatient.entered
+                            ? "bg-kfupmgreen text-white"
+                            : "bg-white text-kfupmgreen"
+                        } p-6 rounded-xl w-96 flex flex-col items-center`}
+                      >
+                        <p className="text-lg font-medium">Patient</p>
+                        <p className="text-2xl font-bold">
+                          {firstPatient.patientName || "No Current Patient"}
+                        </p>
+                        <p className="text-lg font-medium mt-4">Patient ID</p>
+                        <p className="text-2xl font-bold">
+                          {firstPatient.patientID || "-"}
+                        </p>
+                        <p className="text-lg font-medium mt-4">
+                          Appointment ID
+                        </p>
+                        <p className="text-2xl font-bold">
+                          {firstPatient.appointmentID || "-"}
+                        </p>
+                      </div>
+                    ) : null;
+                  })()}
+                </div>
+              </>
+            )}
           </>
         )}
       </div>

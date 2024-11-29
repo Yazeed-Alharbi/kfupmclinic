@@ -16,20 +16,23 @@ lock = threading.Lock()
 connectLock = threading.Lock()
 connected_clients = set()  # To track connected WebSocket clients
 message_queue = queue.Queue()  # Queue for communication between threads
+previous_patients = []
 
 # Function to send messages to all connected WebSocket clients
 async def broadcast():
     """
-    Send the entire updated queue to all connected WebSocket clients.
+    Send the updated queue and the last two finished patients to all connected WebSocket clients.
     """
     to_remove = []
-    message = json.dumps(entries)  # Convert entire entries queue to JSON
+    message = json.dumps({
+        "entries": entries,  # Current queue
+        "finishedPatients": previous_patients  # Last two finished patients
+    })  # Combine both into the message payload
 
     with connectLock:
         for websocket in connected_clients:
             try:
-                # Send the message to the WebSocket
-                await websocket.send(message)
+                await websocket.send(message)  # Send the combined message
             except ConnectionClosed:
                 to_remove.append(websocket)
 
@@ -37,23 +40,29 @@ async def broadcast():
         for websocket in to_remove:
             connected_clients.remove(websocket)
 
+
 # WebSocket handler function
 async def websocket_handler(websocket, path):
     """
-    Handle WebSocket connections and manage the connected clients.
+    Handle WebSocket connections and send initial data to connected clients.
     """
     with connectLock:
         connected_clients.add(websocket)
         with lock:
-                await websocket.send(json.dumps(entries))
-        
+            # Send both entries and previous patients
+            await websocket.send(json.dumps({
+                "entries": entries,
+                "finishedPatients": previous_patients
+            }))
+
     try:
-        async for message in websocket:  # Keep the connection alive for potential client messages
-            pass
+        async for message in websocket:
+            pass  # Keep connection alive
     finally:
         with connectLock:
             connected_clients.remove(websocket)
-            print("removed Connection")
+            print("Removed WebSocket connection")
+
 
 # DDS task to receive check-in updates
 def recieveCheckIn(checkInReader, queueWriter):
@@ -113,8 +122,15 @@ def publishQueue(queueWriter, payload):
     except Exception as e:
         print(f"Error encountered when writing to queue topic: {e}")
 
+def add_to_previous_patients(patient):
+    global previous_patients
+    previous_patients.append(patient)
+    if len(previous_patients) > 2:  # Keep only the last 2 patients
+        previous_patients.pop(0)
+    print(f"Updated previous patients list: {previous_patients}")
+
 # DDS task to receive doctor finish updates
-def recieveDoctorFinish(queueReader,queueUpdateWriter):
+def recieveDoctorFinish(queueReader, queueUpdateWriter):
     while True:
         queueReader.take()
         for sample in queueReader.samples.valid_data_iter:
@@ -125,21 +141,17 @@ def recieveDoctorFinish(queueReader,queueUpdateWriter):
             doctor = sample.get_string("doctorName")
             patient_name = sample.get_string("patientName")
             department = sample.get_string("department")
-            finished  = sample.get_boolean("finished")
-            entered  = sample.get_boolean("entered")
+            finished = sample.get_boolean("finished")
+            entered = sample.get_boolean("entered")
+
             with lock:
                 if department not in entries:
                     continue
                 if doctor not in entries[department]:
                     continue
-                if finished:
-                    finished = True
-                else:
-                    finished = False
-                if entered:
-                    entered = True
-                else:
-                    entered = False 
+                finished = bool(finished)
+                entered = bool(entered)
+
                 queue_entry = {
                     "appointmentID": appointment_id,
                     "patientID": patient_id,
@@ -151,21 +163,28 @@ def recieveDoctorFinish(queueReader,queueUpdateWriter):
                     "entered": entered,
                     "finished": finished
                 }
-                print("recieved doctor", queue_entry)
-                for i in range(len(entries[department][doctor][priority])):
-                    if entries[department][doctor][priority][i]["appointmentID"] == appointment_id:
-                        if finished:
-                            entries[department][doctor][priority].pop(i)
-                        elif entered:
-                            entries[department][doctor][priority][i] = queue_entry
-                publishQueue(queueUpdateWriter,queue_entry)
-            asyncio.run(broadcast())                
-                            
 
-                        
-                    
-        
+                print("Received doctor finish update:", queue_entry)
+
+                entries_list = entries[department][doctor][priority]
+                # Find the entry with matching appointment ID
+                for entry in entries_list[:]:  # Iterate over a copy of the list
+                    if entry["appointmentID"] == appointment_id:
+                        if finished:
+                            # Add to previous patients before removing
+                            add_to_previous_patients(entry)
+                            entries_list.remove(entry)
+                        elif entered:
+                            entry.update(queue_entry)
+                        break  # Exit the loop after processing
+                else:
+                    print(f"Appointment ID {appointment_id} not found in entries.")
+
+                publishQueue(queueUpdateWriter, queue_entry)
+
+            asyncio.run(broadcast())  # Send updated data to WebSocket clients
         time.sleep(1)
+
 
 # WebSocket server setup
 async def websocket_server():
