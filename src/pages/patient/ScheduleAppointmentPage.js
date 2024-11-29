@@ -76,7 +76,7 @@ const ScheduleAppointmentPage = () => {
     const endTime = dayjs(end, 'h:mmP');
     const times = [];
 
-    if ( selectedDoctoBackend == ""){
+    if ( selectedDoctoBackend === ""){
       return times
     }
     else {
@@ -90,7 +90,7 @@ const ScheduleAppointmentPage = () => {
 
       for(let i=0 ; i <times.length;i++){
         for(let j=0 ; j<Dates.length;j++){
-          if(times[i]== Dates[j]['scheduledTime']){
+          if(times[i]=== Dates[j]['scheduledTime']){
             times.splice(i,1);
           }
 
@@ -113,7 +113,7 @@ const ScheduleAppointmentPage = () => {
 
   const HandleSelectedDoctor =async (Doctor) =>{
     
-    if((Array.from(Doctor)[0] == "Anyone" ) ){
+    if((Array.from(Doctor)[0] === "Anyone" ) ){
       let DocInfo = await supabase.from('DocInfo').select('*').eq('Clinic',selectedClinic);
       let MinAppNum=DocInfo['data'][0];     
       for(let i=1 ; i<DocInfo['data'].length;i++ ){
@@ -127,7 +127,7 @@ const ScheduleAppointmentPage = () => {
         setselectedDoctorRoom(MinAppNum['RoomNumber']); 
       }     
     }
-    else if (Array.from(Doctor)[0] == undefined){
+    else if (Array.from(Doctor)[0] === undefined){
       setSelectedDoctor(new Set([""]))
       setselectedDoctoBackend("")
       setSelectedDoctorID(0);
@@ -155,7 +155,7 @@ const ScheduleAppointmentPage = () => {
     let PatientInfo = await supabase.from("Patient").select("*").eq("name",patientName);
     PatientInfo= PatientInfo['data']
     
-    if(PatientInfo.length == 0){
+    if(PatientInfo.length === 0){
       await supabase.from("Patient").insert([ { name: patientName, email: patientEmail, ContactNumber: patientPhone } ]);
       PatientInfo = await supabase.from("Patient").select("*").eq("name",patientName);
       PatientInfo= PatientInfo['data']
