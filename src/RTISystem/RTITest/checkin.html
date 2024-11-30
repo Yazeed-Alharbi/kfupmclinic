@@ -74,7 +74,7 @@
       }
   
       sendBtn.addEventListener("click", function () {
-          const socket = new WebSocket('ws://localhost:8765'); // Ensure the backend runs on port 8765
+          const socket = new WebSocket('ws://192.168.43.240:8765'); // Ensure the backend runs on port 8765
           const appointmentId = appointmentIdInput.value.trim();
   
           if (!appointmentId) {
