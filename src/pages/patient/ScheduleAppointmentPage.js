@@ -11,7 +11,6 @@ import { TbDental, TbDentalBroken, TbVaccineBottle } from "react-icons/tb";
 import { BsEar } from "react-icons/bs";
 import supabase from "../../commonComponents/supabase";
 
-
 dayjs.extend(customParseFormat);
 
 const ScheduleAppointmentPage = () => {
@@ -76,7 +75,7 @@ const ScheduleAppointmentPage = () => {
     const endTime = dayjs(end, 'h:mmP');
     const times = [];
 
-    if ( selectedDoctoBackend === ""){
+    if ( selectedDoctoBackend == ""){
       return times
     }
     else {
@@ -90,7 +89,7 @@ const ScheduleAppointmentPage = () => {
 
       for(let i=0 ; i <times.length;i++){
         for(let j=0 ; j<Dates.length;j++){
-          if(times[i]=== Dates[j]['scheduledTime']){
+          if(times[i]== Dates[j]['scheduledTime']){
             times.splice(i,1);
           }
 
@@ -113,7 +112,7 @@ const ScheduleAppointmentPage = () => {
 
   const HandleSelectedDoctor =async (Doctor) =>{
     
-    if((Array.from(Doctor)[0] === "Anyone" ) ){
+    if((Array.from(Doctor)[0] == "Anyone" ) ){
       let DocInfo = await supabase.from('DocInfo').select('*').eq('Clinic',selectedClinic);
       let MinAppNum=DocInfo['data'][0];     
       for(let i=1 ; i<DocInfo['data'].length;i++ ){
@@ -127,7 +126,7 @@ const ScheduleAppointmentPage = () => {
         setselectedDoctorRoom(MinAppNum['RoomNumber']); 
       }     
     }
-    else if (Array.from(Doctor)[0] === undefined){
+    else if (Array.from(Doctor)[0] == undefined){
       setSelectedDoctor(new Set([""]))
       setselectedDoctoBackend("")
       setSelectedDoctorID(0);
@@ -155,7 +154,7 @@ const ScheduleAppointmentPage = () => {
     let PatientInfo = await supabase.from("Patient").select("*").eq("name",patientName);
     PatientInfo= PatientInfo['data']
     
-    if(PatientInfo.length === 0){
+    if(PatientInfo.length == 0){
       await supabase.from("Patient").insert([ { name: patientName, email: patientEmail, ContactNumber: patientPhone } ]);
       PatientInfo = await supabase.from("Patient").select("*").eq("name",patientName);
       PatientInfo= PatientInfo['data']
@@ -171,7 +170,9 @@ const ScheduleAppointmentPage = () => {
 
   const confirmBooking = async () => {
     let last_row = await supabase.from("Appointment").select('*').order('appointmentId', { ascending: false }).limit(1);
-    setAppointmentID(last_row['data'][0]['appointmentId']+1)
+    let appID = last_row['data'][0]['appointmentId'];
+    appID = appID +1;
+    setAppointmentID(appID)
     
     let DocInfo = await supabase.from("DocInfo").select('*').eq('DocID',selectedDoctorID);
     let new_AppNum=DocInfo['data'][0]['AppNum']+1;
@@ -180,7 +181,7 @@ const ScheduleAppointmentPage = () => {
 
 
     const appointmentData = {
-      appointmentId:AppointmentID,
+      appointmentId:appID,
       patientID:patientID,
       clinic: selectedClinic,
       date: focusedDate.toString(),
@@ -199,7 +200,7 @@ const ScheduleAppointmentPage = () => {
 
 
   await supabase.from("Appointment").insert([ { 
-      appointmentId:AppointmentID,
+      appointmentId:appID,
       patientID: patientID, 
       scheduledTime:selectedTime,
       Priority: 1 ,
@@ -223,6 +224,7 @@ const ScheduleAppointmentPage = () => {
     // Reset form
     setSelectedClinic(clinics[0].label);
     setFocusedDate(today(getLocalTimeZone()));
+    setAvailableTimes([]);
     setSelectedTime("");
     setSelectedDoctor(new Set([""]));
     setselectedDoctoBackend("");
@@ -278,7 +280,15 @@ const ScheduleAppointmentPage = () => {
               <h2 className="text-2xl font-bold mb-4">Select Date & Time</h2>
               <Calendar
                 aria-label="Appointment Date"
+                classNames={{
+                  cellButton: "focus:bg-primary focus:text-secondary-foreground ",
+                }}
+                
+                autoFocus={true}      
+                defaultValue={focusedDate}
                 value={focusedDate}
+                focusedDate={focusedDate}
+                hideDisabledDates={true}
                 onChange={handleDateChange}
                 minValue={now(getLocalTimeZone())}
                 maxValue={now(getLocalTimeZone()).add({ months: 1 })}
