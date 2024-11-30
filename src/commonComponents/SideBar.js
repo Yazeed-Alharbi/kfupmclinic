@@ -21,6 +21,7 @@ const SideBar = ({ buttons, userName, userType }) => {
   const handleButtonClick = (buttonName, path) => {
     setSelectedButton(buttonName);
     navigate(path);
+    window.location.reload();
   };
 
   return (
