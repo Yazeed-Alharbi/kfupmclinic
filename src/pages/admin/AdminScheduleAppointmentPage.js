@@ -294,7 +294,7 @@ const AdminScheduleAppointmentPage = () => {
                   cellButton: "focus:bg-primary focus:text-secondary-foreground ",
                 }}
                 
-                autoFocus={true}      
+                    
                 defaultValue={focusedDate}
                 value={focusedDate}
                 focusedDate={focusedDate}
