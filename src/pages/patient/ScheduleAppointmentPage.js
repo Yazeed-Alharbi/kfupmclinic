@@ -291,7 +291,7 @@ const ScheduleAppointmentPage = () => {
                 hideDisabledDates={true}
                 onChange={handleDateChange}
                 minValue={now(getLocalTimeZone())}
-                maxValue={now(getLocalTimeZone()).add({ months: 1 })}
+                maxValue={now(getLocalTimeZone()).add({ months: 12 })}
               />
               <ScrollShadow className="h-40 mt-4">
                 <div className="grid grid-cols-3 gap-2">
