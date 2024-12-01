@@ -5,10 +5,15 @@ import kfupmlogo from "../assets/kfupmlogo.png";
 import profileImage from "../assets/default-avatar.jpg";
 import { IoMdArrowDropdown } from "react-icons/io";
 
-const SideBar = ({ buttons, userName, userType }) => {
+const SideBar = ({ buttons }) => {
   const [selectedButton, setSelectedButton] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Get user information from localStorage
+  const user = JSON.parse(localStorage.getItem("user"));
+  const userName = user?.name || "Unknown User";
+  const userType = user?.type || "Unknown Type";
 
   useEffect(() => {
     const currentPath = location.pathname;
@@ -22,6 +27,11 @@ const SideBar = ({ buttons, userName, userType }) => {
     setSelectedButton(buttonName);
     navigate(path);
     window.location.reload();
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    navigate("/login");
   };
 
   return (
@@ -70,9 +80,9 @@ const SideBar = ({ buttons, userName, userType }) => {
                 </Button>
               </DropdownTrigger>
               <DropdownMenu aria-label="User Options">
-                <DropdownItem key="1">Option 1</DropdownItem>
-                <DropdownItem key="2">Option 2</DropdownItem>
-                <DropdownItem key="3">Option 3</DropdownItem>
+                <DropdownItem key="logout" onClick={handleLogout} color="danger" className="text-red-400">
+                  Logout
+                </DropdownItem>
               </DropdownMenu>
             </Dropdown>
           </div>

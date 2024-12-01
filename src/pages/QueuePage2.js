@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Chip } from "@nextui-org/react";
 import kfupmlogo from "../assets/kfupmlogo.png";
+import config from "../commonComponents/config"
 
 const QueuePage2 = () => {
   const [queues, setQueues] = useState({});
@@ -9,7 +10,7 @@ const QueuePage2 = () => {
   const [currentDoctorIndex, setCurrentDoctorIndex] = useState(0);
   const [showAd, setShowAd] = useState(false);
 
-  const WEBSOCKET_URL = "ws://localhost:8770";
+  const WEBSOCKET_URL = `ws://${config.QUEUE_HOST}:${config.QUEUE_PORT}`;
 
   useEffect(() => {
     const socket = new WebSocket(WEBSOCKET_URL);

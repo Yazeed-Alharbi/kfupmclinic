@@ -1,22 +1,119 @@
 import React, { useState } from "react";
-import kfupmIllustration from "../assets/KFUPM-illustration.png";
 import { Button, Checkbox, Input, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@nextui-org/react";
-import kfupmlogo from "../assets/kfupmlogo.png";
-import healthIcon from "../assets/HealthCareIcon.png";
 import { IoMdArrowBack } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
+import supabase from "../commonComponents/supabase";
+import kfupmIllustration from "../assets/KFUPM-illustration.png";
+import kfupmlogo from "../assets/kfupmlogo.png";
+import healthIcon from "../assets/HealthCareIcon.png";
 
 const LoginPage = () => {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState(""); // For potential future use
     const [showForgotPassword, setShowForgotPassword] = useState(false);
+    const [error, setError] = useState(null);
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const navigate = useNavigate();
 
-    const handleLogin = () => {
-        navigate("/");
+    const handleLogin = async () => {
+        setError(null); // Reset error state
+    
+        try {
+            console.log("Authenticating user with email:", email);
+    
+            // Authenticate the user with Supabase
+            const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
+    
+            if (authError) {
+                console.error("Authentication failed:", authError);
+                setError("Invalid email or password.");
+                return;
+            }
+    
+            console.log("Authentication successful:", authData);
+    
+            // Proceed to search in the appropriate table
+            console.log("Searching for user in tables...");
+    
+            // Case-insensitive query on Patient table
+            const { data: patientData, error: patientError } = await supabase
+                .from("Patient")
+                .select("*")
+                .ilike("email", email) // Use ilike for case-insensitivity
+                .single();
+            console.log("Patient Query:", patientData, patientError);
+    
+            // Case-insensitive query on DocInfo table
+            const { data: docData, error: docError } = await supabase
+                .from("DocInfo")
+                .select("*")
+                .ilike("Email", email) // Use ilike for case-insensitivity
+                .single();
+            console.log("DocInfo Query:", docData, docError);
+    
+            // Case-insensitive query on Receptionist table
+            // Case-insensitive query on Receptionist table
+            const { data: receptionistData, error: receptionistError } = await supabase
+                .from("Receptionist")
+                .select("*")
+                .ilike("email", email) // Use ilike for case-insensitivity
+                .single();
+            console.log("Receptionist Query:", receptionistData, receptionistError);
+
+    
+            // Determine which table contains the user
+            const userData = patientData || docData || receptionistData;
+    
+            if (!userData) {
+                setError("Please enter valid credentials.");
+                return;
+            }
+    
+            // Identify user type
+            const userType = patientData
+                ? "Patient"
+                : docData
+                ? "Doctor"
+                : "Receptionist";
+    
+            // Create user object
+            const userObject = {
+                name: userData.name || userData.Name || "Unknown", // Match the column name
+                email: userData.email || userData.Email,
+                type: userType,
+                ...userData, // Add all data for further use
+            };
+    
+            // Store user in localStorage
+            localStorage.setItem("user", JSON.stringify(userObject));
+    
+            console.log("User stored in localStorage:", userObject);
+    
+            // Redirect to the respective page based on user type
+            if (userType === "Patient") {
+                navigate("/schedule-appointment");
+            } else if (userType === "Doctor") {
+                navigate("/doctor-schedule");
+            } else if (userType === "Receptionist") {
+                navigate("/generate-appointment");
+            }
+        } catch (error) {
+            console.error("Error logging in:", error);
+            setError("An error occurred while logging in. Please try again.");
+        }
     };
+    
+    
+    
+    
+    
 
     return (
         <div className="relative h-screen flex items-center justify-center">
+            {/* Background Illustration */}
             <div
                 className="absolute inset-0 top-16 bg-cover bg-left-bottom opacity-10 pointer-events-none"
                 style={{
@@ -24,12 +121,15 @@ const LoginPage = () => {
                 }}
             ></div>
 
+            {/* Header */}
             <div className="p-8 h-24 flex items-center justify-center space-x-3 mt-4 absolute top-0 left-0">
                 <img src={kfupmlogo} className="w-12" alt="KFUPM Logo" />
                 <div className="font-semibold text-2xl text-kfupmgreen">
                     KFUPM <span className="text-textgray">Clinic</span>
                 </div>
             </div>
+
+            {/* Login Form */}
             <div className="relative px-16 z-10 w-full max-w-5xl flex justify-center items-center space-x-8 lg:space-x-32">
                 <form className="flex flex-col space-y-6 w-full max-w-md flex-shrink-0">
                     {showForgotPassword && (
@@ -57,6 +157,8 @@ const LoginPage = () => {
                         label="Email"
                         type="email"
                         size="sm"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         className="w-full"
                         classNames={{
                             input: ["bg-white"],
@@ -74,6 +176,8 @@ const LoginPage = () => {
                             label="Password"
                             type="password"
                             size="sm"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
                             className="w-full"
                             classNames={{
                                 input: ["bg-white"],
@@ -86,15 +190,9 @@ const LoginPage = () => {
                         />
                     )}
 
-                    {showForgotPassword ? (
-                        <Button
-                            radius="sm"
-                            className="bg-kfupmgreen text-white font-medium text-md w-full"
-                            onClick={onOpen}
-                        >
-                            Recover Password
-                        </Button>
-                    ) : (
+                    {error && <p className="text-red-500 text-sm">{error}</p>}
+
+                    {!showForgotPassword ? (
                         <>
                             <div className="flex justify-between items-center">
                                 <Checkbox>
@@ -116,12 +214,21 @@ const LoginPage = () => {
                                 Login
                             </Button>
                         </>
+                    ) : (
+                        <Button
+                            radius="sm"
+                            className="bg-kfupmgreen text-white font-medium text-md w-full"
+                            onClick={onOpen}
+                        >
+                            Recover Password
+                        </Button>
                     )}
                 </form>
 
                 <img src={healthIcon} className="w-[400px] h-auto flex-shrink-0 pointer-events-none" alt="Healthcare Icon" />
             </div>
 
+            {/* Forgot Password Modal */}
             <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
                 <ModalContent>
                     {(onClose) => (
