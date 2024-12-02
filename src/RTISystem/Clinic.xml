@@ -11,7 +11,7 @@
         <member name="Appointment" type="uint64" key="true"/>
         <member name="patientID" type="uint64" key="true"/>
         <member name="department" type="string" stringMaxLength="MAX_STRING"/>
-        <member name="scheduledTime" type="uint64" key="true"/>
+        <member name="scheduledTime" type="string" stringMaxLength="MAX_STRING" key="true"/>
         <member name="Priority" type="uint8"/>
         <member name="Finished" type="boolean"/>
         <member name="checkedIn" type="boolean"/>
@@ -31,13 +31,15 @@
         <member name="Availability" type="string" optional="true"/>
       </struct>
       <struct name="Queue">
-        <member name="queuePosition" type="uint64"/>
         <member name="appointmentID" type="uint64" key="true"/>
         <member name="patientID" type="uint64" key="true"/>
         <member name="doctorID" type="uint64"/>
         <member name="Priority" type="uint8"/>
         <member name="doctorName" type="string" stringMaxLength="MAX_STRING"/>
         <member name="patientName" type="string" stringMaxLength="MAX_STRING"/>
+        <member name="department" type="string" stringMaxLength="MAX_STRING"/>
+        <member name="entered" type="boolean"/>  
+        <member name="finished" type="boolean"/>
       </struct>
       <struct name="AdminCommand">
         <member name="commandType" type="string" stringMaxLength="MAX_STRING"/>
@@ -120,6 +122,7 @@
         <topic name="DoctorsTopic" register_type_ref="Doctor"/>
         <topic name="QueueTopic" register_type_ref="Queue"/>
         <topic name="AdminCommandTopic" register_type_ref="AdminCommand"/>
+        <topic name="CheckInTopic" register_type_ref="Queue"/>
       </domain>
     </domain_library>
 
@@ -187,15 +190,6 @@
         </publisher>
       </domain_participant>
       <domain_participant name="ReceptionCheckIn" domain_ref="Clinic::ClinicSystem">
-        <transport_builtin>
-          <transport_class_id>UDPv4</transport_class_id>
-        </transport_builtin>
-        <discovery>
-          <initial_peers>
-            <peer address="192.168.43.240"/>
-            <peer address="192.168.43.178"/>
-          </initial_peers>
-        </discovery>
         <subscriber name="AppointmentSubscription">
           <data_reader name="AppointmentReader" topic_ref="AppointmentTopic">
             <datareader_qos base_name="ClinicQoSLibrary::ReliableDurableProfile">
@@ -203,7 +197,7 @@
           </data_reader>
         </subscriber>
         <publisher name="CheckInPublisher">
-          <data_writer name="QueueWriter" topic_ref="QueueTopic">
+          <data_writer name="QueueWriter" topic_ref="CheckInTopic">
             <datawriter_qos base_name="ClinicQoSLibrary::BestEffortProfile">
             </datawriter_qos>
           </data_writer>
@@ -221,7 +215,7 @@
           </data_reader>
         </subscriber>
         <publisher name="CheckInPublisher">
-          <data_writer name="QueueTopicWriter" topic_ref="QueueTopic">
+          <data_writer name="QueueTopicWriter" topic_ref="CheckInTopic">
             <datawriter_qos base_name="ClinicQoSLibrary::BestEffortProfile">
             </datawriter_qos>
           </data_writer>
@@ -232,48 +226,63 @@
         </publisher>
       </domain_participant>
       <domain_participant name="QueueDisplay" domain_ref="Clinic::ClinicSystem">
-        <transport_builtin>
-          <transport_class_id>UDPv4</transport_class_id>
-        </transport_builtin>
-        <discovery>
-          <initial_peers>
-            <peer address="192.168.43.240"/>
-            <peer address="192.168.43.178"/>
-          </initial_peers>
-        </discovery>
         <subscriber name="CheckedInSubscriber">
-          <data_reader name="QueueTopicReader" topic_ref="QueueTopic">
-            <datareader_qos base_name="ClinicQoSLibrary::BestEffortProfile">
-            </datareader_qos>
-          </data_reader>
+          <data_reader name="CheckInTopicReader" topic_ref="CheckInTopic"/>
         </subscriber>
-      </domain_participant>
-      <domain_participant name="Doctor" domain_ref="Clinic::ClinicSystem">
-        <transport_builtin>
-          <transport_class_id>UDPv4</transport_class_id>
-        </transport_builtin>
-        <discovery>
-          <initial_peers>
-            <peer address="192.168.43.240"/>
-            <peer address="192.168.43.178"/>
-          </initial_peers>
-        </discovery>
-        <subscriber name="Appointment Reader">
-          <data_reader name="AppointmentTopicReader" topic_ref="AppointmentTopic">
-            <datareader_qos base_name="ClinicQoSLibrary::ReliableDurableProfile">
-            </datareader_qos>
-          </data_reader>
-        </subscriber>
-        <publisher name="Appointment Writer">
-          <data_writer name="AppointmentTopicWriter" topic_ref="AppointmentTopic">
-            <datawriter_qos base_name="ClinicQoSLibrary::ReliableDurableProfile">
-            </datawriter_qos>
-          </data_writer>
+        <publisher name="QueueWriter">
           <data_writer name="QueueTopicWriter" topic_ref="QueueTopic">
             <datawriter_qos base_name="ClinicQoSLibrary::ReliableDurableProfile">
             </datawriter_qos>
           </data_writer>
+          <publisher_qos>
+            <partition>
+              <name>
+                <element>Q2D</element>
+              </name>
+            </partition>
+          </publisher_qos>
         </publisher>
+        <subscriber name="QueueTopicSubscriber">
+          <data_reader name="QueueTopicReader" topic_ref="QueueTopic">
+            <datareader_qos base_name="ClinicQoSLibrary::ReliableDurableProfile">
+            </datareader_qos>
+          </data_reader>
+          <subscriber_qos>
+            <partition>
+              <name>
+                <element>D2Q</element>
+              </name>
+            </partition>
+          </subscriber_qos>
+        </subscriber>
+      </domain_participant>
+      <domain_participant name="Doctor" domain_ref="Clinic::ClinicSystem">
+        <publisher name="QueuePublisher">
+          <data_writer name="QueueTopicWriter" topic_ref="QueueTopic">
+            <datawriter_qos base_name="ClinicQoSLibrary::ReliableDurableProfile">
+            </datawriter_qos>
+          </data_writer>
+          <publisher_qos>
+            <partition>
+              <name>
+                <element>D2Q</element>
+              </name>
+            </partition>
+          </publisher_qos>
+        </publisher>
+        <subscriber name="QueueSubscriber">
+          <data_reader name="QueueTopicReader" topic_ref="QueueTopic">
+            <datareader_qos base_name="ClinicQoSLibrary::ReliableDurableProfile">
+            </datareader_qos>
+          </data_reader>
+          <subscriber_qos>
+            <partition>
+              <name>
+                <element>Q2D</element>
+              </name>
+            </partition> 
+          </subscriber_qos>
+        </subscriber>
       </domain_participant>
     </domain_participant_library>
 
