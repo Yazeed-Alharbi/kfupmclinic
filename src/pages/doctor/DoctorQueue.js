@@ -5,7 +5,6 @@ import { FaPersonWalkingDashedLineArrowRight } from "react-icons/fa6";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Chip, Button, Divider, Avatar } from "@nextui-org/react";
 import { useWebSocket } from "../../hooks/useWebSocket";
 
-
 const DoctorQueue = () => {
   const sidebarButtons = [
     { label: "Appointments schedule", icon: FaCalendarPlus, path: "/doctor-schedule" },
@@ -13,16 +12,34 @@ const DoctorQueue = () => {
   ];
 
   const [queueData, setQueueData] = useState({});
-  //Rashed change here
+  const [socketConnected, setSocketConnected] = useState(true);
   const { sendMessage, lastMessage } = useWebSocket("ws://localhost:8775");
-  
 
-  //This is static for now, but it should be fetched from authentication (Cookies)
+  // Static user information from local storage
   const user = JSON.parse(localStorage.getItem("user"));
   const doctorID = user?.docID || "Unknown User";
-  const userType = user?.type || "Unknown Type";
   const doctorName = user?.Name || "Unknown Name";
 
+  useEffect(() => {
+    const socket = new WebSocket("ws://localhost:8775");
+
+    socket.onopen = () => {
+      console.log("Connected to WebSocket server.");
+      setSocketConnected(true);
+    };
+
+    socket.onclose = () => {
+      console.log("WebSocket connection closed.");
+      setSocketConnected(false);
+    };
+
+    socket.onerror = () => {
+      console.error("WebSocket error occurred.");
+      setSocketConnected(false);
+    };
+
+    return () => socket.close();
+  }, []);
 
   useEffect(() => {
     if (lastMessage) {
@@ -37,7 +54,7 @@ const DoctorQueue = () => {
     Object.entries(data).forEach(([department, departmentData]) => {
       if (departmentData[doctorName]) {
         filteredData[department] = {
-          [doctorName]: departmentData[doctorName]
+          [doctorName]: departmentData[doctorName],
         };
       }
     });
@@ -46,14 +63,14 @@ const DoctorQueue = () => {
 
   const handleAction = (action, entry) => {
     sendMessage(JSON.stringify({ Command: action, Entry: entry }));
-    
-    setQueueData(prevData => {
+
+    setQueueData((prevData) => {
       const newData = JSON.parse(JSON.stringify(prevData));
       const departmentData = newData[entry.department];
       const doctorData = departmentData[doctorName];
       const priorityData = doctorData[entry.Priority.toString()];
-    
-      const updatedEntry = priorityData.find(e => e.appointmentID === entry.appointmentID);
+
+      const updatedEntry = priorityData.find((e) => e.appointmentID === entry.appointmentID);
       if (updatedEntry) {
         if (action === "enter") {
           updatedEntry.entered = true;
@@ -62,7 +79,7 @@ const DoctorQueue = () => {
           updatedEntry.finished = true;
         }
       }
-      
+
       return newData;
     });
   };
@@ -115,18 +132,18 @@ const DoctorQueue = () => {
                       <TableCell>
                         <div className="flex gap-2">
                           {!entry.entered && (
-                            <Button 
-                              size="sm" 
-                              color="primary" 
+                            <Button
+                              size="sm"
+                              color="primary"
                               onClick={() => handleAction("enter", { ...entry, department, doctorName: doctor, priority })}
                             >
                               Enter
                             </Button>
                           )}
                           {entry.entered && !entry.finished && (
-                            <Button 
-                              size="sm" 
-                              color="success" 
+                            <Button
+                              size="sm"
+                              color="success"
                               onClick={() => handleAction("finish", { ...entry, department, doctorName: doctor, priority })}
                             >
                               Finish
@@ -148,6 +165,11 @@ const DoctorQueue = () => {
   return (
     <MainLayout title="My Patients' Queue" sidebarButtons={sidebarButtons} userName={doctorName} userType="Doctor">
       <div className="p-6">
+        {!socketConnected && (
+          <div className="bg-red-500 text-white text-center py-2 rounded mb-4">
+            <p>Disconnected from the socket. Please check your connection.</p>
+          </div>
+        )}
         <h1 className="text-3xl font-bold mb-6">My Patient Queue</h1>
         <Divider className="my-4" />
         {Object.keys(queueData).length === 0 ? (
@@ -161,4 +183,3 @@ const DoctorQueue = () => {
 };
 
 export default DoctorQueue;
-

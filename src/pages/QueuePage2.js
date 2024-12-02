@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Chip } from "@nextui-org/react";
 import kfupmlogo from "../assets/kfupmlogo.png";
-import config from "../commonComponents/config"
+import config from "../commonComponents/config";
 
 const QueuePage2 = () => {
   const [queues, setQueues] = useState({});
@@ -9,6 +9,7 @@ const QueuePage2 = () => {
   const [currentClinicIndex, setCurrentClinicIndex] = useState(0);
   const [currentDoctorIndex, setCurrentDoctorIndex] = useState(0);
   const [showAd, setShowAd] = useState(false);
+  const [socketConnected, setSocketConnected] = useState(false); 
 
   const WEBSOCKET_URL = `ws://${config.QUEUE_HOST}:${config.QUEUE_PORT}`;
 
@@ -17,6 +18,7 @@ const QueuePage2 = () => {
 
     socket.onopen = () => {
       console.log("Connected to WebSocket server.");
+      setSocketConnected(true);
     };
 
     socket.onmessage = (event) => {
@@ -29,16 +31,19 @@ const QueuePage2 = () => {
 
     socket.onclose = () => {
       console.log("WebSocket connection closed.");
+      setSocketConnected(false); 
     };
 
     socket.onerror = (error) => {
       console.error("WebSocket error:", error);
+      setSocketConnected(false);
     };
 
     return () => {
       socket.close();
     };
   }, []);
+
   useEffect(() => {
     if (Object.keys(queues).length > 0) {
       setCurrentClinicIndex(0);
@@ -53,10 +58,8 @@ const QueuePage2 = () => {
       if (showAd) {
         setShowAd(false);
       } else if (clinicKeys.length === 0) {
-        
         setShowAd(true);
       } else {
-        
         const currentClinic = queues[clinicKeys[currentClinicIndex]];
         const doctorsInCurrentClinic = Object.keys(currentClinic || {});
 
@@ -93,16 +96,46 @@ const QueuePage2 = () => {
 
   return (
     <div className="h-screen w-screen flex flex-col">
-      <div className="p-4 h-24 sm:h-16 flex items-center justify-center relative mt-4 border-b bg-white">
-        <div className="absolute left-4 flex items-center space-x-3">
+      {/* Header */}
+      <div
+        className={`p-4 h-24 sm:h-16 flex items-center justify-between border-b transition-colors duration-500 ${
+          socketConnected ? "bg-white" : "bg-red-500"
+        }`}
+      >
+        <div className="flex items-center space-x-3">
           <img src={kfupmlogo} className="w-10" alt="KFUPM Logo" />
-          <div className="font-semibold text-xl text-kfupmgreen">
+          <div
+            className={`font-semibold text-xl ${
+              socketConnected ? "text-kfupmgreen" : "text-white"
+            }`}
+          >
             KFUPM <span className="text-textgray">Clinic</span>
           </div>
         </div>
-        <div className="font-semibold text-2xl text-textgray">Queue</div>
+        <div
+          className={`font-semibold text-2xl ${
+            socketConnected ? "text-textgray" : "text-white"
+          }`}
+        >
+          Queue
+        </div>
+        <div className="flex items-center space-x-2">
+          <span
+            className={`w-3 h-3 rounded-full ${
+              socketConnected ? "bg-green-500" : "bg-red-500"
+            }`}
+          ></span>
+          <span
+            className={`text-sm font-medium ${
+              socketConnected ? "text-textgray" : "text-white"
+            }`}
+          >
+            {socketConnected ? "Connected" : "Disconnected"}
+          </span>
+        </div>
       </div>
 
+      {/* Main Content */}
       <div className="bg-gray-100 flex-grow p-8 space-y-8">
         {showAd ? (
           <div className="bg-white p-8 rounded-xl shadow-lg flex flex-col items-center">
@@ -171,17 +204,14 @@ const QueuePage2 = () => {
                       ))}
 
                     {(() => {
-                      // Collect all patients into a single array
                       const allPatients = [];
                       Object.keys(currentDoctor).forEach((priority) => {
                         allPatients.push(...currentDoctor[priority]);
                       });
 
-                      //patients with entered=true come first
                       allPatients.sort((a, b) => {
                         if (a.entered && !b.entered) return -1;
                         if (!a.entered && b.entered) return 1;
-                        // if both have the same 'entered' status, sort by priority
                         if (a.Priority !== b.Priority)
                           return a.Priority - b.Priority;
                         return 0;
@@ -206,9 +236,7 @@ const QueuePage2 = () => {
                     })()}
                   </div>
 
-                  {/* Display the details of the first patient */}
                   {(() => {
-                   
                     const allPatients = [];
                     Object.keys(currentDoctor).forEach((priority) => {
                       allPatients.push(...currentDoctor[priority]);
