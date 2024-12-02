@@ -112,9 +112,14 @@ def recieveInQueue(QueueReader):
                     else:
                         for i in range(len(entries[department][doctor][priority])):
                             if entries[department][doctor][priority][i]["appointmentID"] == appointment_id:
-                                entries[department][doctor][priority].pop(i)
-                                entries[department][doctor][priority].insert(i,queue_entry)
-                                inserted = True
+                                if entries[department][doctor][priority][i]['finished']:
+                                    found = True
+                                elif entries[department][doctor][priority][i]['entered'] and not finished:
+                                    found = True
+                                else:
+                                    entries[department][doctor][priority].pop(i)
+                                    entries[department][doctor][priority].insert(i,queue_entry)
+                                    inserted = True
                                 
                                 
                 except:
@@ -128,7 +133,7 @@ def recieveInQueue(QueueReader):
                     entries[department][doctor][priority].append(queue_entry)
                 print(entries)
             # Place updated data in the queue for the WebSocket thread to broadcast
-            asyncio.run(broadcast())  # Send the entire queue to connected WebSockets
+                asyncio.run(broadcast())  # Send the entire queue to connected WebSockets
         
         time.sleep(1)
 async def recieveCommand(payload,queueWriter):

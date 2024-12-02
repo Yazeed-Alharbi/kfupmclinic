@@ -38,7 +38,7 @@
         <member name="doctorName" type="string" stringMaxLength="MAX_STRING"/>
         <member name="patientName" type="string" stringMaxLength="MAX_STRING"/>
         <member name="department" type="string" stringMaxLength="MAX_STRING"/>
-        <member name="entered" type="boolean"/>  
+        <member name="entered" type="boolean"/>
         <member name="finished" type="boolean"/>
       </struct>
       <struct name="AdminCommand">
@@ -198,7 +198,7 @@
         </subscriber>
         <publisher name="CheckInPublisher">
           <data_writer name="QueueWriter" topic_ref="CheckInTopic">
-            <datawriter_qos base_name="ClinicQoSLibrary::BestEffortProfile">
+            <datawriter_qos base_name="ClinicQoSLibrary::ReliableDurableProfile">
             </datawriter_qos>
           </data_writer>
           <data_writer name="AppointmentUpdateWriter" topic_ref="AppointmentTopic">
@@ -216,7 +216,7 @@
         </subscriber>
         <publisher name="CheckInPublisher">
           <data_writer name="QueueTopicWriter" topic_ref="CheckInTopic">
-            <datawriter_qos base_name="ClinicQoSLibrary::BestEffortProfile">
+            <datawriter_qos base_name="ClinicQoSLibrary::ReliableDurableProfile">
             </datawriter_qos>
           </data_writer>
           <data_writer name="AppointmentTopicWriter" topic_ref="AppointmentTopic">
@@ -227,7 +227,10 @@
       </domain_participant>
       <domain_participant name="QueueDisplay" domain_ref="Clinic::ClinicSystem">
         <subscriber name="CheckedInSubscriber">
-          <data_reader name="CheckInTopicReader" topic_ref="CheckInTopic"/>
+          <data_reader name="CheckInTopicReader" topic_ref="CheckInTopic">
+            <datareader_qos base_name="ClinicQoSLibrary::ReliableDurableProfile">
+            </datareader_qos>
+          </data_reader>
         </subscriber>
         <publisher name="QueueWriter">
           <data_writer name="QueueTopicWriter" topic_ref="QueueTopic">
@@ -280,7 +283,7 @@
               <name>
                 <element>Q2D</element>
               </name>
-            </partition> 
+            </partition>
           </subscriber_qos>
         </subscriber>
       </domain_participant>
