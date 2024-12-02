@@ -1,128 +1,180 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import MainLayout from "../../commonComponents/MainLayout";
-import { FaCalendarCheck, FaCalendarPlus } from "react-icons/fa";
-import { FaPersonWalkingDashedLineArrowRight } from "react-icons/fa6";
-import profileImage from "../../assets/default-avatar.jpg";
-import backgroundImage from "../../assets/KFUPM_LOGO_WHITE.png";
-import backgroundImage2 from "../../assets/KFUPM_LOGO.png";
-import { Button, Divider } from "@nextui-org/react";
+import { FaCalendarCheck, FaCalendarPlus, FaWalking } from "react-icons/fa";
+import { Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Divider } from "@nextui-org/react";
 import { RiCalendarScheduleFill } from "react-icons/ri";
-
-const initialQueue = [
-    { key: "1", name: "Abdullah", clinic: "Dental Clinic", doctor: "David Green", room: "3" },
-    { key: "2", name: "Sarah", clinic: "Eye Clinic", doctor: "Emma Brown", room: "2" },
-    { key: "3", name: "John", clinic: "Pediatrics", doctor: "Michael Johnson", room: "1" },
-];
+import supabase from "../../commonComponents/supabase";
+import config from "../../commonComponents/config";
 
 const QueueManagementPage = () => {
-    const sidebarButtons = [
-        { label: "Generate Appointment", icon: FaCalendarPlus, path: "/generate-appointment" },
-        { label: "Schedule Appointment", icon: FaCalendarCheck, path: "/admin-schedule-appointment" },
-        { label: "Doctor Schedule", icon: RiCalendarScheduleFill, path: "/admin-doctor-schedule" },
-        { label: "Queue Management", icon: FaPersonWalkingDashedLineArrowRight, path: "/queue-management" },
-    ];
+  const sidebarButtons = [
+    { label: "Generate Appointment", icon: FaCalendarPlus, path: "/generate-appointment" },
+    { label: "Schedule Appointment", icon: FaCalendarCheck, path: "/admin-schedule-appointment" },
+    { label: "Doctor Schedule", icon: RiCalendarScheduleFill, path: "/admin-doctor-schedule" },
+    { label: "Queue Management", icon: FaWalking, path: "/queue-management" },
+  ];
 
-    const [currentQueueIndex, setCurrentQueueIndex] = useState(0);
-    const [paused, setPaused] = useState(false);
+  const [appointments, setAppointments] = useState([]);
+  const [socketConnected, setSocketConnected] = useState(true);
+  const socketRef = useRef(null);
 
-    const handlePause = () => {
-        setPaused(!paused);
+  useEffect(() => {
+    socketRef.current = new WebSocket(`ws://${config.HOST}:${config.PORT}`);
+
+    socketRef.current.onopen = () => {
+      console.log("WebSocket connection opened.");
+      setSocketConnected(true);
     };
 
-    const handleNext = () => {
-        if (currentQueueIndex < initialQueue.length - 1) {
-            setCurrentQueueIndex(currentQueueIndex + 1);
+    socketRef.current.onmessage = (event) => {
+      console.log("Received from server:", event.data);
+      try {
+        const message = JSON.parse(event.data);
+        if (message.type === "checkInConfirmation" && message.appointmentId) {
+          setAppointments((prevAppointments) =>
+            prevAppointments.map((appointment) =>
+              appointment.appointmentId === message.appointmentId
+                ? { ...appointment, checkedIn: true }
+                : appointment
+            )
+          );
+          console.log(`Appointment ID ${message.appointmentId} marked as Checked In.`);
+        } else if (message.type === "error" && message.message) {
+          console.error("Server Error:", message.message);
         }
+      } catch (err) {
+        console.error("Error parsing WebSocket message:", err);
+      }
     };
 
-    const handlePrevious = () => {
-        if (currentQueueIndex > 0) {
-            setCurrentQueueIndex(currentQueueIndex - 1);
-        }
+    socketRef.current.onerror = (error) => {
+      console.error("WebSocket error:", error);
+      setSocketConnected(false);
     };
 
-    const currentPatient = initialQueue[currentQueueIndex];
+    socketRef.current.onclose = () => {
+      console.log("WebSocket connection closed.");
+      setSocketConnected(false);
+    };
 
-    return (
-        <MainLayout title="Queue Management" sidebarButtons={sidebarButtons} userName="Yazeed Alharbi" userType="Admin">
-            <div className="flex flex-col items-center justify-center h-full">
-                <div className="flex space-x-8">
-                    <div className={`relative w-96 h-52 rounded-xl flex flex-col items-center p-4 ${paused ? "bg-gray-400" : "bg-kfupmgreen"} overflow-hidden`}>
-                        <img
-                            src={backgroundImage}
-                            alt="Background"
-                            className="absolute top-4 right-4 opacity-15 h-72 pointer-events-none"
-                            style={{ zIndex: 0 }}
-                        />
-                        <p className="text-white text-xl" style={{ zIndex: 1 }}>Queue</p>
-                        <p className="text-white text-8xl pt-6 font-semibold" style={{ zIndex: 1 }}>{currentQueueIndex + 1}</p>
-                    </div>
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.close();
+      }
+    };
+  }, []);
 
-                    <div className={`relative w-96 border-kfupmgreen border-1 h-52 rounded-xl ${paused ? "bg-gray-300" : "bg-white"} overflow-hidden`}>
-                        <img
-                            src={backgroundImage2}
-                            alt="Background"
-                            className="absolute top-4 right-4 opacity-10 h-72 pointer-events-none"
-                            style={{ zIndex: 0 }}
-                        />
-                        <div className="flex flex-col items-center justify-center h-full space-y-4" style={{ zIndex: 1 }}>
-                            <div className="flex flex-col items-center space-y-2">
-                                <img src={profileImage} className="w-11 h-11" alt="Profile" />
-                                <p className="text-lg font-medium">{currentPatient.name}</p>
-                            </div>
-                            <div className="flex space-x-2">
-                                <div className="flex flex-col items-center">
-                                    <p className="text-sm text-textlightgray">Clinic</p>
-                                    <p className="max-w-min">{currentPatient.clinic}</p>
-                                </div>
-                                <Divider orientation="vertical" />
-                                <div className="flex flex-col items-center">
-                                    <p className="text-sm text-textlightgray">Doctor</p>
-                                    <p className="max-w-min">{currentPatient.doctor}</p>
-                                </div>
-                                <Divider orientation="vertical" />
-                                <div className="flex flex-col items-center">
-                                    <p className="text-sm text-textlightgray">Room</p>
-                                    <p className="">{currentPatient.room}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
+      const { data, error } = await supabase
+        .from("Appointment")
+        .select("appointmentId, patientID, patientName, doctorName, roomNumber, scheduledTime, checkedIn")
+        .eq("AppDate", today);
 
-                <div className="flex space-x-4 mt-8">
-                    <Button
-                        className={`${
-                            paused || currentQueueIndex === 0
-                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                : "bg-[#F7CCD7] text-[#D7042F]"
-                        }`}
-                        onClick={handlePrevious}
-                        disabled={paused || currentQueueIndex === 0}
-                    >
-                        Previous
-                    </Button>
-                    <Button
-                        className="bg-[#FFECCA] text-[#EFAA01]"
-                        onClick={handlePause}
-                    >
-                        {paused ? "Resume" : "Pause"}
-                    </Button>
-                    <Button
-                        className={`${
-                            paused || currentQueueIndex === initialQueue.length - 1
-                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                : "bg-[#C8F1DD] text-kfupmgreen"
-                        }`}
-                        onClick={handleNext}
-                        disabled={paused || currentQueueIndex === initialQueue.length - 1}
-                    >
-                        Next
-                    </Button>
-                </div>
-            </div>
-        </MainLayout>
+      if (error) {
+        console.error("Error fetching appointments:", error);
+      } else {
+        setAppointments(data || []);
+      }
+    };
+
+    fetchAppointments();
+  }, []);
+
+  const handleCheckIn = (appointmentId) => {
+    setAppointments((prevAppointments) =>
+      prevAppointments.map((appointment) =>
+        appointment.appointmentId === appointmentId
+          ? { ...appointment, checkedIn: true }
+          : appointment
+      )
     );
+
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      const data = { appointmentId: appointmentId };
+      socketRef.current.send(JSON.stringify(data));
+      console.log(`Sent Appointment ID to server: ${appointmentId}`);
+    } else {
+      console.error("WebSocket is not open. Unable to send Appointment ID.");
+
+      setAppointments((prevAppointments) =>
+        prevAppointments.map((appointment) =>
+          appointment.appointmentId === appointmentId
+            ? { ...appointment, checkedIn: false }
+            : appointment
+        )
+      );
+    }
+  };
+
+  return (
+    <MainLayout
+      title="Queue Management"
+      sidebarButtons={sidebarButtons}
+      userName="Yazeed Alharbi"
+      userType="Admin"
+    >
+      <div className="p-6">
+        {!socketConnected && (
+          <div className="bg-red-500 text-white text-center py-2 rounded mb-4">
+            <p>Disconnected from the socket. Please check your connection.</p>
+          </div>
+        )}
+        
+        <Table aria-label="Appointments for Today" className="w-full">
+          <TableHeader>
+            <TableColumn>Appointment ID</TableColumn>
+            <TableColumn>Patient ID</TableColumn>
+            <TableColumn>Patient Name</TableColumn>
+            <TableColumn>Doctor Name</TableColumn>
+            <TableColumn>Room Number</TableColumn>
+            <TableColumn>Scheduled Time</TableColumn>
+            <TableColumn>Actions</TableColumn>
+          </TableHeader>
+          <TableBody>
+            {appointments && appointments.length > 0 ? (
+              appointments.map((appointment) => (
+                <TableRow key={appointment.appointmentId}>
+                  <TableCell>{appointment.appointmentId}</TableCell>
+                  <TableCell>{appointment.patientID}</TableCell>
+                  <TableCell>{appointment.patientName}</TableCell>
+                  <TableCell>{appointment.doctorName}</TableCell>
+                  <TableCell>{appointment.roomNumber || "N/A"}</TableCell>
+                  <TableCell>{appointment.scheduledTime}</TableCell>
+                  <TableCell>
+                    {appointment.checkedIn ? (
+                      <span className="text-green-500 font-normal">Checked In</span>
+                    ) : (
+                      <Button
+                        size="sm"
+                        color="primary"
+                        onClick={() => handleCheckIn(appointment.appointmentId)}
+                      >
+                        Check In
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow key="no-appointments">
+                <TableCell className="text-center" style={{ textAlign: "center" }}>
+                  No appointments for today.
+                </TableCell>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </MainLayout>
+  );
 };
 
 export default QueueManagementPage;
