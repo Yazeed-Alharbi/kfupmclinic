@@ -11,6 +11,7 @@ import QueuePage from './pages/patient/QueuePage';
 import DoctorQueue from './pages/doctor/DoctorQueue';
 import QueuePage2 from './pages/QueuePage2';
 import AdminQueuePage from './pages/admin/AllDoctorsQueue';
+import KioskCheckIn from './pages/patient/KioskCheckIn'; // Import the new KioskCheckIn component
 
 // Wrapper for public routes
 const PublicRoute = ({ children }) => {
@@ -55,6 +56,7 @@ function App() {
           }
         />
         <Route path="/queue2" element={<QueuePage2 />} />
+        <Route path="/kioskcheckin" element={<KioskCheckIn />} /> {/* Public route accessible by everyone */}
 
         {/* Error page for unauthorized access */}
         <Route path="/error" element={<div>Unauthorized Access</div>} />

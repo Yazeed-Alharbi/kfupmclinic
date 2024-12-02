@@ -22,7 +22,11 @@ async def process_appointment_id(websocket, path, queue_writer):
             appointment_id = data.get("appointmentId")
 
             if not appointment_id:
-                await websocket.send("Invalid appointment ID received.")
+                response = {
+                    "status": "error",
+                    "message": "Invalid appointment ID received."
+                }
+                await websocket.send(json.dumps(response))
                 continue
 
             print(f"Received appointment ID: {appointment_id}")
@@ -30,19 +34,36 @@ async def process_appointment_id(websocket, path, queue_writer):
             # Fetch appointment data from Supabase
             response = supabase.table("Appointment").select("*").eq("appointmentId", appointment_id).execute()
             if response.data:
-                # Publish to DDS
-                if (response.data)[0]['checkedIn']:
-                    await websocket.send(f"Appointment with ID{appointment_id} is already checked in.")
+                appointment = response.data[0]
+                if appointment['checkedIn']:
+                    response = {
+                        "status": "info",
+                        "message": f"Appointment with ID {appointment_id} is already checked in."
+                    }
                 else:
                     await update_to_checkin_appointment(appointment_id)
                     await publish_to_appointment_queue(response.data, queue_writer)
-                    await websocket.send(f"Appointment ID {appointment_id} processed successfully.")
+                    response = {
+                        "status": "success",
+                        "message": f"Appointment ID {appointment_id} processed successfully."
+                    }
             else:
-                await websocket.send(f"Appointment ID {appointment_id} not found in the database.")
+                response = {
+                    "status": "error",
+                    "message": f"Appointment ID {appointment_id} not found in the database."
+                }
+
+            # Send response back to the client
+            await websocket.send(json.dumps(response))
+
         except Exception as e:
-            error_message = f"Error processing data: {e}"
+            error_message = {
+                "status": "error",
+                "message": f"Error processing data: {e}"
+            }
             print(error_message)
-            await websocket.send(error_message)
+            await websocket.send(json.dumps(error_message))
+
 
 async def publish_to_appointment_queue(appointment_data, writer):
     try:
