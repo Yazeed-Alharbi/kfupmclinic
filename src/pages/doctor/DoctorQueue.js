@@ -5,6 +5,7 @@ import { FaPersonWalkingDashedLineArrowRight } from "react-icons/fa6";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Chip, Button, Divider, Avatar } from "@nextui-org/react";
 import { useWebSocket } from "../../hooks/useWebSocket";
 
+
 const DoctorQueue = () => {
   const sidebarButtons = [
     { label: "Appointments schedule", icon: FaCalendarPlus, path: "/doctor-schedule" },
@@ -12,11 +13,16 @@ const DoctorQueue = () => {
   ];
 
   const [queueData, setQueueData] = useState({});
+  //Rashed change here
   const { sendMessage, lastMessage } = useWebSocket("ws://localhost:8775");
+  
 
   //This is static for now, but it should be fetched from authentication (Cookies)
-  const doctorID = 1;
-  const doctorName = "Dr. Abdullah Alrashed";
+  const user = JSON.parse(localStorage.getItem("user"));
+  const doctorID = user?.docID || "Unknown User";
+  const userType = user?.type || "Unknown Type";
+  const doctorName = user?.Name || "Unknown Name";
+
 
   useEffect(() => {
     if (lastMessage) {
