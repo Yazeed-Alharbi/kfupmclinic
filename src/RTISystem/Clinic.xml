@@ -192,8 +192,8 @@
         </transport_builtin>
         <discovery>
           <initial_peers>
-            <peer address="10.13.103.14"/>
-            <peer address="10.13.90.127"/>
+            <peer address="192.168.43.240"/>
+            <peer address="192.168.43.178"/>
           </initial_peers>
         </discovery>
         <subscriber name="AppointmentSubscription">
@@ -237,8 +237,8 @@
         </transport_builtin>
         <discovery>
           <initial_peers>
-            <peer address="10.13.103.14"/>
-            <peer address="10.13.90.127"/>
+            <peer address="192.168.43.240"/>
+            <peer address="192.168.43.178"/>
           </initial_peers>
         </discovery>
         <subscriber name="CheckedInSubscriber">
@@ -254,8 +254,8 @@
         </transport_builtin>
         <discovery>
           <initial_peers>
-            <peer address="10.13.103.14"/>
-            <peer address="10.13.90.127"/>
+            <peer address="192.168.43.240"/>
+            <peer address="192.168.43.178"/>
           </initial_peers>
         </discovery>
         <subscriber name="Appointment Reader">
