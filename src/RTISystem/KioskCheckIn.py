@@ -50,7 +50,7 @@ async def process_appointment_id(websocket, path, queue_writer):
             else:
                 response = {
                     "status": "error",
-                    "message": f"Appointment ID {appointment_id} not found in the database."
+                    "message": f"Appointment ID {appointment_id} not found."
                 }
 
             # Send response back to the client

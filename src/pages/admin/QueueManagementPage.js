@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import MainLayout from "../../commonComponents/MainLayout";
 import { FaCalendarCheck, FaCalendarPlus, FaWalking } from "react-icons/fa";
-import { Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Divider } from "@nextui-org/react";
+import { Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Divider, User, Chip } from "@nextui-org/react";
 import { RiCalendarScheduleFill } from "react-icons/ri";
 import supabase from "../../commonComponents/supabase";
 import config from "../../commonComponents/config";
@@ -69,7 +69,7 @@ const QueueManagementPage = () => {
       const today = new Date().toISOString().split("T")[0];
       const { data, error } = await supabase
         .from("Appointment")
-        .select("appointmentId, patientID, patientName, doctorName, roomNumber, scheduledTime, checkedIn")
+        .select("Priority, appointmentId, patientID, patientName, doctorName, roomNumber, scheduledTime, checkedIn")
         .eq("AppDate", today);
 
       if (error) {
@@ -128,9 +128,9 @@ const QueueManagementPage = () => {
         
         <Table aria-label="Appointments for Today" className="w-full">
           <TableHeader>
+            <TableColumn>Priority</TableColumn>
             <TableColumn>Appointment ID</TableColumn>
-            <TableColumn>Patient ID</TableColumn>
-            <TableColumn>Patient Name</TableColumn>
+            <TableColumn>Patient</TableColumn>
             <TableColumn>Doctor Name</TableColumn>
             <TableColumn>Room Number</TableColumn>
             <TableColumn>Scheduled Time</TableColumn>
@@ -140,9 +140,15 @@ const QueueManagementPage = () => {
             {appointments && appointments.length > 0 ? (
               appointments.map((appointment) => (
                 <TableRow key={appointment.appointmentId}>
+                  <TableCell>
+                  <Chip color={appointment.Priority == "0" ? "danger" : appointment.Priority == "1" ? "primary" : "success"}>
+                          {appointment.Priority == "0" ? "High" : appointment.Priority == "1" ? "Normal" : "Low"}
+                  </Chip>
+                  </TableCell>
                   <TableCell>{appointment.appointmentId}</TableCell>
-                  <TableCell>{appointment.patientID}</TableCell>
-                  <TableCell>{appointment.patientName}</TableCell>
+                  <TableCell>
+                      <User name={appointment.patientName} description={`ID:${appointment.patientID}`}/>
+                  </TableCell>
                   <TableCell>{appointment.doctorName}</TableCell>
                   <TableCell>{appointment.roomNumber || "N/A"}</TableCell>
                   <TableCell>{appointment.scheduledTime}</TableCell>
@@ -152,7 +158,8 @@ const QueueManagementPage = () => {
                     ) : (
                       <Button
                         size="sm"
-                        color="primary"
+                        className="bg-kfupmgreen text-white"
+                        
                         onClick={() => handleCheckIn(appointment.appointmentId)}
                       >
                         Check In
