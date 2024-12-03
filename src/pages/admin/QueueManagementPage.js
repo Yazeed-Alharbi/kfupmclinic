@@ -66,7 +66,7 @@ const QueueManagementPage = () => {
 
   useEffect(() => {
     const fetchAppointments = async () => {
-      const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
+      const today = new Date().toISOString().split("T")[0];
       const { data, error } = await supabase
         .from("Appointment")
         .select("appointmentId, patientID, patientName, doctorName, roomNumber, scheduledTime, checkedIn")
@@ -80,6 +80,10 @@ const QueueManagementPage = () => {
     };
 
     fetchAppointments();
+
+    const intervalId = setInterval(fetchAppointments, 3000);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   const handleCheckIn = (appointmentId) => {
