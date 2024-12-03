@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import config from "../../commonComponents/config";
 import kfupmlogo from "../../assets/kfupmlogo.png";
 
@@ -6,6 +6,58 @@ const KioskCheckIn = () => {
   const [appointmentId, setAppointmentId] = useState("");
   const [feedback, setFeedback] = useState(null);
   const [inputVisible, setInputVisible] = useState(true); // State to toggle input visibility
+  const [isConnected, setIsConnected] = useState(true); // Tracks WebSocket connection status
+  const [socket, setSocket] = useState(null); // Track the WebSocket instance
+
+  useEffect(() => {
+    const connectWebSocket = () => {
+      const newSocket = new WebSocket(`ws://${config.KIOSK_HOST}:${config.KIOSK_PORT}`);
+
+      newSocket.onopen = () => {
+        console.log("WebSocket connection opened.");
+        setIsConnected(true); // Update connection status
+      };
+
+      newSocket.onmessage = (event) => {
+        try {
+          const response = JSON.parse(event.data);
+
+          if (response.status === "success") {
+            setFeedbackWithTimeout({ type: "success", message: `Check-in successful: ${response.message}` });
+          } else if (response.status === "error") {
+            setFeedbackWithTimeout({ type: "error", message: response.message || "An error occurred." });
+          } else {
+            setFeedbackWithTimeout({ type: "info", message: response.message || "Unexpected server response." });
+          }
+        } catch (error) {
+          setFeedbackWithTimeout({ type: "error", message: "Invalid response from server." });
+        }
+      };
+
+      newSocket.onerror = () => {
+        console.error("WebSocket error occurred.");
+        setIsConnected(false); // Mark as disconnected
+      };
+
+      newSocket.onclose = () => {
+        console.log("WebSocket connection closed.");
+        setIsConnected(false); // Mark as disconnected
+
+        // Attempt to reconnect after 3 seconds
+        setTimeout(connectWebSocket, 3000);
+      };
+
+      setSocket(newSocket); // Save the WebSocket instance to state
+    };
+
+    connectWebSocket(); // Establish WebSocket connection on mount
+
+    return () => {
+      if (socket) {
+        socket.close(); // Clean up WebSocket on unmount
+      }
+    };
+  }, []); // Run only once on component mount
 
   const handleSend = () => {
     if (!appointmentId.trim()) {
@@ -13,36 +65,15 @@ const KioskCheckIn = () => {
       return;
     }
 
-    const socket = new WebSocket(`ws://${config.KIOSK_HOST}:${config.KIOSK_PORT}`);
-
-    socket.onopen = () => {
-      setFeedback({ type: "info", message: "Processing request..." }); // Show processing feedback
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      setFeedback({ type: "info", message: "Processing request..." });
       const data = { appointmentId };
       socket.send(JSON.stringify(data));
-    };
+    } else {
+      setFeedbackWithTimeout({ type: "error", message: "Connection is not established. Please try again." });
+    }
 
-    socket.onmessage = (event) => {
-      try {
-        const response = JSON.parse(event.data);
-
-        if (response.status === "success") {
-          setFeedbackWithTimeout({ type: "success", message: `Check-in successful: ${response.message}` });
-        } else if (response.status === "error") {
-          setFeedbackWithTimeout({ type: "error", message: response.message || "An error occurred." });
-        } else {
-          setFeedbackWithTimeout({ type: "info", message: response.message || "Unexpected server response." });
-        }
-      } catch (error) {
-        setFeedbackWithTimeout({ type: "error", message: "Invalid response from server." });
-      }
-    };
-
-    socket.onerror = () => {
-      setFeedbackWithTimeout({ type: "error", message: "Connection lost. Please try again." });
-    };
-
-    // Hide the input after sending the appointment ID
-    setInputVisible(false);
+    setInputVisible(false); // Hide the input area after sending
   };
 
   const setFeedbackWithTimeout = (feedback) => {
@@ -72,7 +103,15 @@ const KioskCheckIn = () => {
       {/* Main Content */}
       <div className="flex flex-grow items-center justify-center">
         <div className="w-full max-w-lg bg-white shadow-md rounded-lg p-8">
-          {inputVisible ? (
+          {!isConnected ? (
+            // Show error if WebSocket is not connected
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-red-600 mb-6">Service Unavailable</h2>
+              <p className="text-lg text-gray-700">
+                The system is currently out of service. Please wait or contact the clinic staff for assistance.
+              </p>
+            </div>
+          ) : inputVisible ? (
             <>
               <h2 className="text-2xl font-bold mb-6 text-center">Enter Appointment ID</h2>
               <input
