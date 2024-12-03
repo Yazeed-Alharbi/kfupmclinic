@@ -9,12 +9,13 @@ const QueuePage2 = () => {
   const [currentClinicIndex, setCurrentClinicIndex] = useState(0);
   const [currentDoctorIndex, setCurrentDoctorIndex] = useState(0);
   const [showAd, setShowAd] = useState(false);
-  const [socketConnected, setSocketConnected] = useState(false); 
+  const [socketConnected, setSocketConnected] = useState(false);
 
   const WEBSOCKET_URL = `ws://${config.QUEUE_HOST}:${config.QUEUE_PORT}`;
+  let socket;
 
-  useEffect(() => {
-    const socket = new WebSocket(WEBSOCKET_URL);
+  const connectWebSocket = () => {
+    socket = new WebSocket(WEBSOCKET_URL);
 
     socket.onopen = () => {
       console.log("Connected to WebSocket server.");
@@ -30,17 +31,24 @@ const QueuePage2 = () => {
     };
 
     socket.onclose = () => {
-      console.log("WebSocket connection closed.");
-      setSocketConnected(false); 
+      console.log("WebSocket connection closed. Retrying...");
+      setSocketConnected(false);
+      setTimeout(() => connectWebSocket(), 5000); // Retry after 5 seconds
     };
 
     socket.onerror = (error) => {
       console.error("WebSocket error:", error);
       setSocketConnected(false);
     };
+  };
+
+  useEffect(() => {
+    connectWebSocket();
 
     return () => {
-      socket.close();
+      if (socket) {
+        socket.close();
+      }
     };
   }, []);
 
