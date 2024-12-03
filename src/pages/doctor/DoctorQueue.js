@@ -4,6 +4,7 @@ import { FaCalendarPlus } from "react-icons/fa";
 import { FaPersonWalkingDashedLineArrowRight } from "react-icons/fa6";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Chip, Button, Divider, Avatar } from "@nextui-org/react";
 import { useWebSocket } from "../../hooks/useWebSocket";
+import config from "../../commonComponents/config"
 
 const DoctorQueue = () => {
   const sidebarButtons = [
@@ -13,7 +14,7 @@ const DoctorQueue = () => {
 
   const [queueData, setQueueData] = useState({});
   const [socketConnected, setSocketConnected] = useState(true);
-  const { sendMessage, lastMessage } = useWebSocket("ws://localhost:8775");
+  const { sendMessage, lastMessage } = useWebSocket(`ws://${config.DOCTOR_HOST}}:${config.DOCTOR_PORT}`);
 
   // Static user information from local storage
   const user = JSON.parse(localStorage.getItem("user"));
@@ -21,7 +22,7 @@ const DoctorQueue = () => {
   const doctorName = user?.Name || "Unknown Name";
 
   useEffect(() => {
-    const socket = new WebSocket("ws://localhost:8775");
+    const socket = new WebSocket(`ws://${config.DOCTOR_HOST}}:${config.DOCTOR_PORT}`);
 
     socket.onopen = () => {
       console.log("Connected to WebSocket server.");
