@@ -21,22 +21,8 @@ const LoginPage = () => {
         try {
             console.log("Authenticating user with email:", email);
     
-            // Authenticate the user with Supabase
-            const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-                email,
-                password,
-            });
-    
-            if (authError) {
-                console.error("Authentication failed:", authError);
-                setError("Invalid email or password.");
-                return;
-            }
-    
-            console.log("Authentication successful:", authData);
-    
-            // Proceed to search in the appropriate table
-            console.log("Searching for user in tables...");
+        
+
     
             // Case-insensitive query on Patient table
             const { data: patientData, error: patientError } = await supabase
