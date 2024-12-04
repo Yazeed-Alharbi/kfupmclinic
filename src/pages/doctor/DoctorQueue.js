@@ -8,13 +8,13 @@ import config from "../../commonComponents/config"
 
 const DoctorQueue = () => {
   const sidebarButtons = [
-    { label: "Appointments schedule", icon: FaCalendarPlus, path: "/doctor-schedule" },
+    //{ label: "Appointments schedule", icon: FaCalendarPlus, path: "/doctor-schedule" },
     { label: "My Patients' Queue", icon: FaPersonWalkingDashedLineArrowRight, path: "/doctor-queue" },
   ];
 
   const [queueData, setQueueData] = useState({});
   const [socketConnected, setSocketConnected] = useState(true);
-  const { sendMessage, lastMessage } = useWebSocket(`ws://${config.DOCTOR_HOST}}:${config.DOCTOR_PORT}`);
+  const { sendMessage, lastMessage } = useWebSocket(`ws://${config.DOCTOR_HOST}:${config.DOCTOR_PORT}`);
 
   // Static user information from local storage
   const user = JSON.parse(localStorage.getItem("user"));
@@ -22,7 +22,7 @@ const DoctorQueue = () => {
   const doctorName = user?.Name || "Unknown Name";
 
   useEffect(() => {
-    const socket = new WebSocket(`ws://${config.DOCTOR_HOST}}:${config.DOCTOR_PORT}`);
+    const socket = new WebSocket(`ws://${config.DOCTOR_HOST}:${config.DOCTOR_PORT}`);
 
     socket.onopen = () => {
       console.log("Connected to WebSocket server.");

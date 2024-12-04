@@ -21,8 +21,27 @@ const LoginPage = () => {
         try {
             console.log("Authenticating user with email:", email);
     
+<<<<<<< Updated upstream
         
 
+=======
+            // // Authenticate the user with Supabase
+            // const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+            //     email,
+            //     password,
+            // });
+    
+            // if (authError) {
+            //     console.error("Authentication failed:", authError);
+            //     setError("Invalid email or password.");
+            //     return;
+            // }
+    
+            //console.log("Authentication successful:", authData);
+    
+            // Proceed to search in the appropriate table
+            console.log("Searching for user in tables...");
+>>>>>>> Stashed changes
     
             // Case-insensitive query on Patient table
             const { data: patientData, error: patientError } = await supabase
@@ -82,7 +101,7 @@ const LoginPage = () => {
             if (userType === "Patient") {
                 navigate("/schedule-appointment");
             } else if (userType === "Doctor") {
-                navigate("/doctor-schedule");
+                navigate("/doctor-queue");
             } else if (userType === "Receptionist") {
                 navigate("/generate-appointment");
             }
