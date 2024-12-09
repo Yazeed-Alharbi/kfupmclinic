@@ -21,10 +21,7 @@ const LoginPage = () => {
         try {
             console.log("Authenticating user with email:", email);
     
-<<<<<<< Updated upstream
-        
 
-=======
             // // Authenticate the user with Supabase
             // const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
             //     email,
@@ -41,7 +38,6 @@ const LoginPage = () => {
     
             // Proceed to search in the appropriate table
             console.log("Searching for user in tables...");
->>>>>>> Stashed changes
     
             // Case-insensitive query on Patient table
             const { data: patientData, error: patientError } = await supabase
