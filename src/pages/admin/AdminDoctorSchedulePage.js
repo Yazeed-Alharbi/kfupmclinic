@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import MainLayout from "../../commonComponents/MainLayout";
-import { FaCalendarPlus, FaCalendarCheck } from "react-icons/fa";
+import { FaCalendarPlus, FaCalendarCheck, FaChartPie } from "react-icons/fa";
 import { RiCalendarScheduleFill } from "react-icons/ri";
 import {
   Select,
@@ -92,6 +92,7 @@ const AdminDoctorSchedulePage = () => {
   };
 
   const sidebarButtons = [
+    {label: "Dashboard", icon: FaChartPie, path: "/dashboard"},
     { label: "Generate Appointment", icon: FaCalendarPlus, path: "/generate-appointment" },
     { label: "Schedule Appointment", icon: FaCalendarCheck, path: "/admin-schedule-appointment" },
     { label: "Doctor Schedule", icon: RiCalendarScheduleFill, path: "/admin-doctor-schedule" },

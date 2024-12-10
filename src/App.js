@@ -12,6 +12,7 @@ import DoctorQueue from './pages/doctor/DoctorQueue';
 import QueuePage2 from './pages/QueuePage2';
 import AdminQueuePage from './pages/admin/AllDoctorsQueue';
 import KioskCheckIn from './pages/patient/KioskCheckIn'; // Import the new KioskCheckIn component
+import DashboardPage from './pages/admin/DashboardPage';
 
 // Wrapper for public routes
 const PublicRoute = ({ children }) => {
@@ -99,6 +100,14 @@ function App() {
           element={
             <PrivateRoute allowedRoles={['Receptionist']}>
               <AdminScheduleAppointmentPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute allowedRoles={['Receptionist']}>
+              <DashboardPage/>
             </PrivateRoute>
           }
         />

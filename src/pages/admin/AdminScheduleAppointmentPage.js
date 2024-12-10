@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import MainLayout from "../../commonComponents/MainLayout";
-import { FaCalendarPlus, FaCalendarCheck } from "react-icons/fa";
+import { FaCalendarPlus, FaCalendarCheck, FaChartPie } from "react-icons/fa";
 import { RiCalendarScheduleFill } from "react-icons/ri";
 import { Card, CardBody, Button, Calendar, Select, SelectItem, ScrollShadow, Input, Chip, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@nextui-org/react";
 import { today, getLocalTimeZone, now } from "@internationalized/date";
@@ -16,6 +16,7 @@ import supabase from "../../commonComponents/supabase";
 dayjs.extend(customParseFormat);
 const AdminScheduleAppointmentPage = () => {
   const sidebarButtons = [
+    {label: "Dashboard", icon: FaChartPie, path: "/dashboard"},
     { label: "Generate Appointment", icon: FaCalendarPlus, path: "/generate-appointment" },
     { label: "Schedule Appointment", icon: FaCalendarCheck, path: "/admin-schedule-appointment" },
     { label: "Doctor Schedule", icon: RiCalendarScheduleFill, path: "/admin-doctor-schedule" },

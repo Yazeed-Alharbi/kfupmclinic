@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import MainLayout from "../../commonComponents/MainLayout";
-import { FaCalendarCheck, FaCalendarPlus, FaWalking } from "react-icons/fa";
+import { FaCalendarCheck, FaCalendarPlus, FaWalking, FaChartPie } from "react-icons/fa";
 import { Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Divider, User, Chip } from "@nextui-org/react";
 import { RiCalendarScheduleFill } from "react-icons/ri";
 import supabase from "../../commonComponents/supabase";
@@ -8,6 +8,7 @@ import config from "../../commonComponents/config";
 
 const QueueManagementPage = () => {
   const sidebarButtons = [
+    {label: "Dashboard", icon: FaChartPie, path: "/dashboard"},
     { label: "Generate Appointment", icon: FaCalendarPlus, path: "/generate-appointment" },
     { label: "Schedule Appointment", icon: FaCalendarCheck, path: "/admin-schedule-appointment" },
     { label: "Doctor Schedule", icon: RiCalendarScheduleFill, path: "/admin-doctor-schedule" },

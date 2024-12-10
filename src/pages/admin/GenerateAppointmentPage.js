@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import MainLayout from "../../commonComponents/MainLayout";
-import { FaCalendarPlus, FaCalendarCheck } from "react-icons/fa";
+import { FaCalendarPlus, FaCalendarCheck, FaChartPie } from "react-icons/fa";
 import { RiCalendarScheduleFill } from "react-icons/ri";
 import {DeleteIcon} from "../../assets/deleteIcon";
 import {
@@ -54,6 +54,7 @@ const GenerateAppointmentPage = () => {
   const [tableSelect, setTableSelect] = useState("");
   const [rows, setRows] = useState([]);
   const sidebarButtons = [
+    {label: "Dashboard", icon: FaChartPie, path: "/dashboard"},
     {
       label: "Generate Appointment",
       icon: FaCalendarPlus,
