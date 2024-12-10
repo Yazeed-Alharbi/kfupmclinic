@@ -86,7 +86,7 @@ function App() {
             </PrivateRoute>
           }
         />
-        {/* <Route
+        <Route
           path="/doctor-schedule"
           element={
             <PrivateRoute allowedRoles={['Doctor']}>
@@ -101,7 +101,7 @@ function App() {
               <AdminScheduleAppointmentPage />
             </PrivateRoute>
           }
-        /> */}
+        />
         <Route
           path="/generate-appointment"
           element={
