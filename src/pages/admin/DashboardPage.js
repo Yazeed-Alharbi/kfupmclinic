@@ -1,10 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
+import React from "react";
 import MainLayout from "../../commonComponents/MainLayout";
 import { FaCalendarCheck, FaCalendarPlus, FaWalking, FaChartPie } from "react-icons/fa";
-import { Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Divider, User, Chip } from "@nextui-org/react";
+import { Divider } from "@nextui-org/react";
 import { RiCalendarScheduleFill } from "react-icons/ri";
-import supabase from "../../commonComponents/supabase";
-import config from "../../commonComponents/config";
+import AppointmentsPerDay  from "./dashboard/AppointmentsPerDay";
+import  AppointmentsPerClinic from "./dashboard/AppointmentsPerClinic";
+import { AverageWaitingTime } from "./dashboard/AverageWaitingTime";
+import { AppointmentStatusPieChart } from "./dashboard/AppointmentStatusPieChart";
+
 
 const DashboardPage = () => {
   const sidebarButtons = [
@@ -17,7 +20,7 @@ const DashboardPage = () => {
 
   return (
     <MainLayout
-      title="Queue Management"
+      title="Dashboard"
       sidebarButtons={sidebarButtons}
       userName="Yazeed Almanie"
       userType="Admin"
@@ -27,15 +30,21 @@ const DashboardPage = () => {
         <Divider />
         <div className="mt-6">
           <h2 className="text-xl font-semibold">Welcome, Admin!</h2>
-          <p className="text-gray-600 mt-2">
-            You can manage appointments, schedules, and queues from the sidebar.
+          <p className="text-gray-600 mt-2 mb-6">
+            Here's an overview of your clinic's performance.
           </p>
         </div>
-    
         
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <AppointmentsPerDay />
+          <AppointmentsPerClinic />
+          <AverageWaitingTime />
+          <AppointmentStatusPieChart />
+        </div>
       </div>
     </MainLayout>
   );
 };
 
 export default DashboardPage;
+
