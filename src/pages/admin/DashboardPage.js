@@ -27,15 +27,10 @@ const DashboardPage = () => {
     >
       <div className="p-6">
         <h1 className="text-2xl font-bold">Dashboard</h1>
-        <Divider />
-        <div className="mt-6">
-          <h2 className="text-xl font-semibold">Welcome, Admin!</h2>
-          <p className="text-gray-600 mt-2 mb-6">
-            Here's an overview of your clinic's performance.
-          </p>
-        </div>
+        <Divider className="mb-5"/>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
           <AppointmentsPerDay />
           <AppointmentsPerClinic />
           <AverageWaitingTime />
