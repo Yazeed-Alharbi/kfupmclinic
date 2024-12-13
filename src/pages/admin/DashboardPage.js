@@ -7,6 +7,7 @@ import AppointmentsPerDay  from "./dashboard/AppointmentsPerDay";
 import  AppointmentsPerClinic from "./dashboard/AppointmentsPerClinic";
 import { AverageWaitingTime } from "./dashboard/AverageWaitingTime";
 import { AppointmentStatusPieChart } from "./dashboard/AppointmentStatusPieChart";
+import SystemStatus from "./dashboard/SystemStatus";
 
 
 const DashboardPage = () => {
@@ -31,6 +32,7 @@ const DashboardPage = () => {
         
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
+          <SystemStatus />
           <AppointmentsPerDay />
           <AppointmentsPerClinic />
           <AverageWaitingTime />
