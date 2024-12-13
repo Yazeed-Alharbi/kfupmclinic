@@ -1,45 +1,61 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import supabase from "../../../commonComponents/supabase";
 
-const currentDate = new Date();
-const oneWeekAgo = new Date();
-oneWeekAgo.setDate(currentDate.getDate() -100);
-console.log(oneWeekAgo.toISOString())
-// let llll = await supabase.from('Appointment').select('*').eq('doctorID',1)
-let dataa  = await supabase
-        .from('Appointment').select('*')
+export default function AppointmentsPerDay() {
+  const [data, setData] = useState([]); // State to store processed data
+
+  const fetchData = async () => {
+    try {
+      const currentDate = new Date();
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(currentDate.getDate() - 100);
+
+      const { data: appointments, error } = await supabase
+        .from('Appointment')
+        .select('*')
         .gte('AppDate', oneWeekAgo.toISOString())
         .lte('AppDate', currentDate.toISOString())
         .order('AppDate', { ascending: true });
-        let dataArray = dataa.data;
-        console.log(dataArray);
-        let afterProcessing = [];
-        
-        dataArray.forEach(element => {
-          let parsedDate = new Date(element.AppDate);
-          let month = (parsedDate.getMonth() + 1).toString().padStart(2, "0"); // Add leading zero if needed
-          let day = parsedDate.getDate().toString().padStart(2, "0"); // Add leading zero if needed
-        
-          let formattedDate = `${month}/${day}`;
-        
-          // Check if formattedDate already exists in the array
-          let existingDay = afterProcessing.find(item => item.day === formattedDate);
-          
-          if (existingDay) {
-            // If the day exists, increment the appointment count
-            existingDay.appointments++;
-          } else {
-            // If the day does not exist, add a new entry with 1 appointment
-            afterProcessing.push({ day: formattedDate, appointments: 1 });
-          }
-        });
-        
-        console.log(afterProcessing);
-        
-const data = afterProcessing
 
-export default function AppointmentsPerDay() {
+      if (error) {
+        console.error("Error fetching appointments:", error);
+        return;
+      }
+
+      const processedData = [];
+
+      appointments.forEach((element) => {
+        const parsedDate = new Date(element.AppDate);
+        const month = (parsedDate.getMonth() + 1).toString().padStart(2, "0");
+        const day = parsedDate.getDate().toString().padStart(2, "0");
+        const formattedDate = `${month}/${day}`;
+
+        const existingDay = processedData.find((item) => item.day === formattedDate);
+
+        if (existingDay) {
+          existingDay.appointments++;
+        } else {
+          processedData.push({ day: formattedDate, appointments: 1 });
+        }
+      });
+
+      setData(processedData); // Update the state with the processed data
+    } catch (error) {
+      console.error("Error processing data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData(); // Fetch data initially
+
+    const interval = setInterval(() => {
+      fetchData(); // Fetch data every 3 seconds
+    }, 3000);
+
+    return () => clearInterval(interval); // Cleanup interval on component unmount
+  }, []);
+
   return (
     <div className="w-full h-[300px]">
       <h3 className="text-lg font-semibold mb-2">Appointments per Day</h3>
@@ -56,4 +72,3 @@ export default function AppointmentsPerDay() {
     </div>
   );
 }
-
