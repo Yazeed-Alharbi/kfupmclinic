@@ -64,52 +64,47 @@ const DoctorQueue = () => {
   };
 
   const handleAction = async (action, entry) => {
-    const now = new Date();
-    const currentTime = now.toTimeString().split(" ")[0];
+    sendMessage(JSON.stringify({ Command: action, Entry: entry }));
   
-    let updates = {};
-    if (action === "enter") {
-      updates = { entered: true, enterTime: currentTime };
-    } else if (action === "finish") {
-      updates = { Finished: true, finishTime: currentTime };
-    }
+    setQueueData((prevData) => {
+      const newData = JSON.parse(JSON.stringify(prevData));
+      const departmentData = newData[entry.department];
+      const doctorData = departmentData[entry.doctorName]; // Ensure that entry.doctorName exists
+      const priorityData = doctorData[entry.Priority.toString()];
   
-    try {
-      // Update the Appointment table in Supabase
-      const { error } = await supabase
-        .from("Appointment")
-        .update(updates)
-        .eq("appointmentId", entry.appointmentID);
-  
-      if (error) {
-        console.error("Error updating appointment:", error.message);
-        return;
+      const updatedEntry = priorityData.find((e) => e.appointmentID === entry.appointmentID);
+      if (updatedEntry) {
+        if (action === "enter") {
+          updatedEntry.entered = true;
+        } else if (action === "finish") {
+          updatedEntry.entered = true;
+          updatedEntry.finished = true;
+        }
       }
   
-      console.log(`Successfully updated ${action} action in database.`);
+      return newData;
+    });
   
-      // Update local state to reflect changes
-      setQueueData((prevData) => {
-        const newData = JSON.parse(JSON.stringify(prevData));
-        const departmentData = newData[entry.department];
-        const doctorData = departmentData[doctorName];
-        const priorityData = doctorData[entry.Priority.toString()];
+    const currentTime = new Date().toISOString().substring(11, 19);
   
-        const updatedEntry = priorityData.find((e) => e.appointmentID === entry.appointmentID);
-        if (updatedEntry) {
-          if (action === "enter") {
-            updatedEntry.entered = true;
-            updatedEntry.enterTime = currentTime;
-          } else if (action === "finish") {
-            updatedEntry.finished = true;
-            updatedEntry.finishTime = currentTime;
-          }
-        }
+    let updates = {
+      entered: action === "enter" || action === "finish" ? true : false,
+      Finished: action === "finish" ? true : false
+    };
   
-        return newData;
-      });
-    } catch (err) {
-      console.error("Error handling action:", err.message);
+    if (action === "enter") {
+      updates.enterTime = currentTime;
+    } else if (action === "finish") {
+      updates.finishTime = currentTime;
+    }
+  
+    const { error } = await supabase
+      .from('Appointment')
+      .update(updates)
+      .eq('appointmentId', entry.appointmentID);
+  
+    if (error) {
+      console.error('Error updating database:', error);
     }
   };
 

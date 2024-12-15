@@ -88,42 +88,45 @@ const QueueManagementPage = () => {
   }, []);
 
   const handleCheckIn = async (appointmentId) => {
-    const now = new Date();
-    const currentTime = now.toTimeString().split(" ")[0]; // Extract "HH:MM:SS" from the current time
-  
-    try {
+    setAppointments((prevAppointments) =>
+      prevAppointments.map((appointment) =>
+        appointment.appointmentId === appointmentId
+          ? { ...appointment, checkedIn: true }
+          : appointment
+      )
+    );
 
-      const { error } = await supabase
-        .from("Appointment")
-        .update({ checkedIn: true, checkInTime: currentTime })
-        .eq("appointmentId", appointmentId);
-  
-      if (error) {
-        console.error("Error updating check-in time:", error.message);
-        return;
-      }
-  
-      console.log(`Appointment ID ${appointmentId} marked as Checked In.`);
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      const data = { appointmentId: appointmentId };
+      socketRef.current.send(JSON.stringify(data));
+      console.log(`Sent Appointment ID to server: ${appointmentId}`);
+    } else {
+      console.error("WebSocket is not open. Unable to send Appointment ID.");
+
       setAppointments((prevAppointments) =>
         prevAppointments.map((appointment) =>
           appointment.appointmentId === appointmentId
-            ? { ...appointment, checkedIn: true, checkInTime: currentTime }
+            ? { ...appointment, checkedIn: false }
             : appointment
         )
       );
+    }
 
-      if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-        const data = { appointmentId };
-        socketRef.current.send(JSON.stringify(data));
-        console.log(`Sent Appointment ID to server: ${appointmentId}`);
-      } else {
-        console.error("WebSocket is not open. Unable to send Appointment ID.");
-      }
-    } catch (err) {
-      console.error("Error in handleCheckIn:", err.message);
+    const currentTime = new Date().toISOString().substring(11, 19);
+  
+    let updates = {
+      checkInTime: currentTime,
+    };
+  
+    const { error } = await supabase
+      .from('Appointment')
+      .update(updates)
+      .eq('appointmentId', appointmentId);
+  
+    if (error) {
+      console.error('Error updating database:', error);
     }
   };
-  
 
   return (
     <MainLayout
