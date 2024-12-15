@@ -87,31 +87,43 @@ const QueueManagementPage = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-  const handleCheckIn = (appointmentId) => {
-    setAppointments((prevAppointments) =>
-      prevAppointments.map((appointment) =>
-        appointment.appointmentId === appointmentId
-          ? { ...appointment, checkedIn: true }
-          : appointment
-      )
-    );
+  const handleCheckIn = async (appointmentId) => {
+    const now = new Date();
+    const currentTime = now.toTimeString().split(" ")[0]; // Extract "HH:MM:SS" from the current time
+  
+    try {
 
-    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-      const data = { appointmentId: appointmentId };
-      socketRef.current.send(JSON.stringify(data));
-      console.log(`Sent Appointment ID to server: ${appointmentId}`);
-    } else {
-      console.error("WebSocket is not open. Unable to send Appointment ID.");
-
+      const { error } = await supabase
+        .from("Appointment")
+        .update({ checkedIn: true, checkInTime: currentTime })
+        .eq("appointmentId", appointmentId);
+  
+      if (error) {
+        console.error("Error updating check-in time:", error.message);
+        return;
+      }
+  
+      console.log(`Appointment ID ${appointmentId} marked as Checked In.`);
       setAppointments((prevAppointments) =>
         prevAppointments.map((appointment) =>
           appointment.appointmentId === appointmentId
-            ? { ...appointment, checkedIn: false }
+            ? { ...appointment, checkedIn: true, checkInTime: currentTime }
             : appointment
         )
       );
+
+      if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+        const data = { appointmentId };
+        socketRef.current.send(JSON.stringify(data));
+        console.log(`Sent Appointment ID to server: ${appointmentId}`);
+      } else {
+        console.error("WebSocket is not open. Unable to send Appointment ID.");
+      }
+    } catch (err) {
+      console.error("Error in handleCheckIn:", err.message);
     }
   };
+  
 
   return (
     <MainLayout

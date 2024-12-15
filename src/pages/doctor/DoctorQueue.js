@@ -5,6 +5,7 @@ import { FaPersonWalkingDashedLineArrowRight } from "react-icons/fa6";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Chip, Button, Divider, Avatar } from "@nextui-org/react";
 import { useWebSocket } from "../../hooks/useWebSocket";
 import config from "../../commonComponents/config"
+import supabase from "../../commonComponents/supabase"
 
 const DoctorQueue = () => {
   const sidebarButtons = [
@@ -62,27 +63,54 @@ const DoctorQueue = () => {
     return filteredData;
   };
 
-  const handleAction = (action, entry) => {
-    sendMessage(JSON.stringify({ Command: action, Entry: entry }));
-
-    setQueueData((prevData) => {
-      const newData = JSON.parse(JSON.stringify(prevData));
-      const departmentData = newData[entry.department];
-      const doctorData = departmentData[doctorName];
-      const priorityData = doctorData[entry.Priority.toString()];
-
-      const updatedEntry = priorityData.find((e) => e.appointmentID === entry.appointmentID);
-      if (updatedEntry) {
-        if (action === "enter") {
-          updatedEntry.entered = true;
-        } else if (action === "finish") {
-          updatedEntry.entered = true;
-          updatedEntry.finished = true;
-        }
+  const handleAction = async (action, entry) => {
+    const now = new Date();
+    const currentTime = now.toTimeString().split(" ")[0];
+  
+    let updates = {};
+    if (action === "enter") {
+      updates = { entered: true, enterTime: currentTime };
+    } else if (action === "finish") {
+      updates = { Finished: true, finishTime: currentTime };
+    }
+  
+    try {
+      // Update the Appointment table in Supabase
+      const { error } = await supabase
+        .from("Appointment")
+        .update(updates)
+        .eq("appointmentId", entry.appointmentID);
+  
+      if (error) {
+        console.error("Error updating appointment:", error.message);
+        return;
       }
-
-      return newData;
-    });
+  
+      console.log(`Successfully updated ${action} action in database.`);
+  
+      // Update local state to reflect changes
+      setQueueData((prevData) => {
+        const newData = JSON.parse(JSON.stringify(prevData));
+        const departmentData = newData[entry.department];
+        const doctorData = departmentData[doctorName];
+        const priorityData = doctorData[entry.Priority.toString()];
+  
+        const updatedEntry = priorityData.find((e) => e.appointmentID === entry.appointmentID);
+        if (updatedEntry) {
+          if (action === "enter") {
+            updatedEntry.entered = true;
+            updatedEntry.enterTime = currentTime;
+          } else if (action === "finish") {
+            updatedEntry.finished = true;
+            updatedEntry.finishTime = currentTime;
+          }
+        }
+  
+        return newData;
+      });
+    } catch (err) {
+      console.error("Error handling action:", err.message);
+    }
   };
 
   const renderQueue = () => {
