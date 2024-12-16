@@ -87,7 +87,7 @@ export function AverageWaitingTime() {
 
   return (
     <div className="w-full h-[300px]">
-      <h3 className="text-lg font-semibold mb-2">Average Waiting Time per Clinic</h3>
+      <h3 className="text-lg font-semibold mb-2">Average Waiting Time per Clinic in Minutes</h3>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data}>
           <CartesianGrid strokeDasharray="3 3" />

@@ -21,7 +21,7 @@ export default function AppointmentsPerClinic() {
       // Process the data to count appointments by clinic
       appointments.forEach((element) => {
         // Trim Arabic and the hyphen from the clinic name
-        let trimmedClinic = element.clinic.split('-')[0].trim().split(' ')[0];
+        let trimmedClinic = element.clinic.split('-')[0].trim();
 
         // Check if the clinic already exists in the array
         let existingClinic = processedData.find(item => item.clinic === trimmedClinic);
