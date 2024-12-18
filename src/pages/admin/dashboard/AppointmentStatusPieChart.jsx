@@ -28,7 +28,7 @@ export function AppointmentStatusPieChart() {
         if (element.Finished === true) {
           completedCount++;
         }
-        if (element.entered === true) {
+        if (element.entered === true && element.Finished===false) {
           enteredCount++;
         }
         if (element.checkedIn === false) {
