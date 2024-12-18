@@ -20,50 +20,60 @@ const QueueManagementPage = () => {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    socketRef.current = new WebSocket(`ws://${config.HOST}:${config.PORT}`);
-
-    socketRef.current.onopen = () => {
-      console.log("WebSocket connection opened.");
-      setSocketConnected(true);
-    };
-
-    socketRef.current.onmessage = (event) => {
-      console.log("Received from server:", event.data);
-      try {
-        const message = JSON.parse(event.data);
-        if (message.type === "checkInConfirmation" && message.appointmentId) {
-          setAppointments((prevAppointments) =>
-            prevAppointments.map((appointment) =>
-              appointment.appointmentId === message.appointmentId
-                ? { ...appointment, checkedIn: true }
-                : appointment
-            )
-          );
-          console.log(`Appointment ID ${message.appointmentId} marked as Checked In.`);
-        } else if (message.type === "error" && message.message) {
-          console.error("Server Error:", message.message);
+    const connectWebSocket = () => {
+      const socket = new WebSocket(`ws://${config.HOST}:${config.PORT}`);
+      socketRef.current = socket;
+  
+      socket.onopen = () => {
+        console.log("WebSocket connection opened.");
+        setSocketConnected(true);
+      };
+  
+      socket.onmessage = (event) => {
+        console.log("Received from server:", event.data);
+        try {
+          const message = JSON.parse(event.data);
+          if (message.type === "checkInConfirmation" && message.appointmentId) {
+            setAppointments((prevAppointments) =>
+              prevAppointments.map((appointment) =>
+                appointment.appointmentId === message.appointmentId
+                  ? { ...appointment, checkedIn: true }
+                  : appointment
+              )
+            );
+            console.log(`Appointment ID ${message.appointmentId} marked as Checked In.`);
+          } else if (message.type === "error" && message.message) {
+            console.error("Server Error:", message.message);
+          }
+        } catch (err) {
+          console.error("Error parsing WebSocket message:", err);
         }
-      } catch (err) {
-        console.error("Error parsing WebSocket message:", err);
-      }
+      };
+  
+      socket.onerror = (error) => {
+        console.error("WebSocket error:", error);
+        setSocketConnected(false);
+      };
+  
+      socket.onclose = () => {
+        console.log("WebSocket connection closed. Attempting to reconnect...");
+        setSocketConnected(false);
+        // Attempt to reconnect after a delay
+        setTimeout(() => {
+          connectWebSocket();
+        }, 5000); // Retry every 5 seconds
+      };
     };
-
-    socketRef.current.onerror = (error) => {
-      console.error("WebSocket error:", error);
-      setSocketConnected(false);
-    };
-
-    socketRef.current.onclose = () => {
-      console.log("WebSocket connection closed.");
-      setSocketConnected(false);
-    };
-
+  
+    connectWebSocket();
+  
     return () => {
       if (socketRef.current) {
         socketRef.current.close();
       }
     };
   }, []);
+  
 
   useEffect(() => {
     const fetchAppointments = async () => {

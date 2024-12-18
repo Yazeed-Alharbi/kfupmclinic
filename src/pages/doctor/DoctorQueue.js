@@ -14,7 +14,7 @@ const DoctorQueue = () => {
   ];
 
   const [queueData, setQueueData] = useState({});
-  const [socketConnected, setSocketConnected] = useState(true);
+  let [socketConnected, setSocketConnected] = useState(true);
   const { sendMessage, lastMessage } = useWebSocket(`ws://${config.DOCTOR_HOST}:${config.DOCTOR_PORT}`);
 
   // Static user information from local storage
@@ -23,7 +23,7 @@ const DoctorQueue = () => {
   const doctorName = user?.Name || "Unknown Name";
 
   useEffect(() => {
-    const socket = new WebSocket(`ws://${config.DOCTOR_HOST}:${config.DOCTOR_PORT}`);
+    let socket = new WebSocket(`ws://${config.DOCTOR_HOST}:${config.DOCTOR_PORT}`);
 
     socket.onopen = () => {
       console.log("Connected to WebSocket server.");
@@ -33,6 +33,23 @@ const DoctorQueue = () => {
     socket.onclose = () => {
       console.log("WebSocket connection closed.");
       setSocketConnected(false);
+    
+      // Attempt to reconnect after 5 seconds
+      setTimeout(() => {
+        let newSocket = new WebSocket(`ws://${config.DOCTOR_HOST}:${config.DOCTOR_PORT}`);
+    
+        // Reuse the existing handlers
+        newSocket.onopen = () => {
+          console.log("Reconnected to WebSocket server.");
+          setSocketConnected(true);
+        };
+        newSocket.onmessage = socket.onmessage;
+        newSocket.onerror = socket.onerror;
+        newSocket.onclose = socket.onclose;
+    
+        // Replace the old socket with the new one
+        socket = newSocket;
+      }, 1000);
     };
 
     socket.onerror = () => {
