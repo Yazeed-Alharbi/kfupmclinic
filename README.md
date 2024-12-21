@@ -6,7 +6,7 @@ This project is a Real-Time queue management system in the clinic through the us
  1. Install the project dependencies:
 	For the JS dependencies run the following command: 
     npm install
-    For the PYTHON dependencies check the directory ./src/RTISystem to ensure all dependcies are installed
+    For the PYTHON dependencies check the directory ./src/RTISystem to ensure all dependencies are installed
     
  2. Initilize your Supabase environment, create a Supabase environment (whether local or online), copy your API link, and key to the config files (Config.js, Config.py, Supabase.js). Consider using the provided demo data, and Database schema. 
 
